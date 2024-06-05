@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "201305785035",
+    "project_id": "axondragonscale-78806",
+    "storage_bucket": "axondragonscale-78806.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201305785035:android:aae4bb80dd90bb50ed914e",
+        "android_client_info": {
+          "package_name": "com.axondragonscale.jest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHZl8AmZzLVeapnFHZnsILEQzFvS-soTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201305785035:android:fe8ff9e459285c26ed914e",
+        "android_client_info": {
+          "package_name": "com.axondragonscale.wallmatic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHZl8AmZzLVeapnFHZnsILEQzFvS-soTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
