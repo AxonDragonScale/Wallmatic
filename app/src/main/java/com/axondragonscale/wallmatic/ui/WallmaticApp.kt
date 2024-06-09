@@ -14,8 +14,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.axondragonscale.wallmatic.ui.albums.Albums
 import com.axondragonscale.wallmatic.ui.bottombar.BottomBar
 import com.axondragonscale.wallmatic.ui.bottombar.Tab
+import com.axondragonscale.wallmatic.ui.home.Home
+import com.axondragonscale.wallmatic.ui.settings.Settings
 import kotlinx.coroutines.launch
 
 /**
@@ -36,9 +39,9 @@ fun WallmaticApp() {
 
         HorizontalPager(state = pagerState) { position ->
             when (position) {
-                Tab.Home.position -> Test(text = "1")
-                Tab.Albums.position -> Test(text = "2")
-                Tab.Settings.position -> Test(text = "3")
+                Tab.Home.position -> Home()
+                Tab.Albums.position -> Albums()
+                Tab.Settings.position -> Settings()
             }
         }
 
@@ -52,12 +55,5 @@ fun WallmaticApp() {
                 }
             }
         )
-    }
-}
-
-@Composable
-fun Test(text: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = text, color = Color.White)
     }
 }
