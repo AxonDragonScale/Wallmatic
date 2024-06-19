@@ -40,7 +40,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun WallmaticTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -58,6 +57,7 @@ fun WallmaticTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.background.toArgb()
             window.navigationBarColor = colorScheme.primaryContainer.toArgb()
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightNavigationBars = !darkTheme

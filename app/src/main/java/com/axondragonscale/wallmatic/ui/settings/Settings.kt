@@ -4,40 +4,44 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brightness6
+import androidx.compose.material.icons.filled.BrightnessAuto
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.outlined.BrightnessAuto
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -84,7 +88,6 @@ private fun Header(modifier: Modifier = Modifier) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ThemeCard(modifier: Modifier = Modifier) = Card(
     modifier = modifier.fillMaxWidth(),
@@ -98,13 +101,34 @@ private fun ThemeCard(modifier: Modifier = Modifier) = Card(
         color = MaterialTheme.colorScheme.onPrimary,
     )
 
-    ListItem(
-        modifier = Modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(8.dp)),
+    DarkModeCard(
+        modifier = Modifier.padding(top = 4.dp),
+        uiMode = UIMode.AUTO
+    )
+
+    DynamicThemeCard(
+        modifier = Modifier.padding(bottom = 4.dp),
+        dynamicTheme = false,
+        onDynamicThemeToggle = { }
+    )
+}
+
+fun UIMode.getIcon(isActive: Boolean) = when (this) {
+    UIMode.LIGHT -> if (isActive) Icons.Filled.LightMode else Icons.Outlined.LightMode
+    UIMode.DARK -> if (isActive) Icons.Filled.DarkMode else Icons.Outlined.DarkMode
+    UIMode.AUTO -> if (isActive) Icons.Filled.BrightnessAuto else Icons.Outlined.BrightnessAuto
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DarkModeCard(
+    modifier: Modifier = Modifier,
+    uiMode: UIMode,
+) {
+    BaseSettingCard(
+        modifier = modifier,
         leadingContent = {
             Icon(
-                modifier = Modifier,
                 imageVector = Icons.Filled.Brightness6,
                 contentDescription = "Dark Mode",
             )
@@ -123,30 +147,94 @@ private fun ThemeCard(modifier: Modifier = Modifier) = Card(
             )
         },
         trailingContent = {
-            val selected = 1
             SingleChoiceSegmentedButtonRow(
-                modifier = Modifier
-                    .width(128.dp)
-                    .height(32.dp)
+                modifier = Modifier.size(width = 128.dp, height = 32.dp),
             ) {
-                (0 until 3).forEach { i ->
+                UIMode.entries.forEach { mode ->
+                    val isActive = mode == uiMode
                     SegmentedButton(
-                        selected = i == selected,
+                        selected = isActive,
                         onClick = {},
-                        shape = SegmentedButtonDefaults.itemShape(i, 3),
                         label = {
                             Icon(
-                                imageVector = Icons.Filled.Brightness6,
+                                imageVector = mode.getIcon(isActive),
                                 contentDescription = "",
+                                tint = if (isActive) MaterialTheme.colorScheme.primary
+                                else LocalContentColor.current
                             )
                         },
-                        icon = {}
+                        icon = { /* Don't show tick */ },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            mode.ordinal,
+                            UIMode.entries.size
+                        ),
+                        colors = SegmentedButtonDefaults.colors()
                     )
                 }
             }
         },
+    )
+}
 
+@Composable
+fun DynamicThemeCard(
+    modifier: Modifier = Modifier,
+    dynamicTheme: Boolean,
+    onDynamicThemeToggle: (Boolean) -> Unit,
+) {
+    BaseSettingCard(
+        modifier = modifier,
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.Palette,
+                contentDescription = "Dynamic Theme",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Dynamic Theme",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "Use Material You",
+                style = MaterialTheme.typography.labelSmall
+            )
+        },
+        trailingContent = {
+            Switch(
+                checked = dynamicTheme,
+                onCheckedChange = onDynamicThemeToggle,
+            )
+        }
+    )
+}
+
+@Composable
+private fun BaseSettingCard(
+    modifier: Modifier = Modifier,
+    leadingContent: @Composable (() -> Unit)? = null,
+    headlineContent: @Composable () -> Unit,
+    supportingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+) {
+    ListItem(
+        modifier = modifier
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(8.dp)),
+        leadingContent = leadingContent,
+        headlineContent = headlineContent,
+        supportingContent = supportingContent,
+        trailingContent = trailingContent,
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.onPrimary,
+            leadingIconColor = MaterialTheme.colorScheme.primary,
+            headlineColor = MaterialTheme.colorScheme.primary,
+            supportingColor = MaterialTheme.colorScheme.secondary,
         )
+    )
 }
 
 @Preview(name = "Light Mode", showBackground = true)
