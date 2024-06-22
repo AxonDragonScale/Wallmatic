@@ -41,11 +41,10 @@ fun WallmaticApp() {
         val scope = rememberCoroutineScope()
 
         HorizontalPager(state = pagerState) { position ->
-            val bottomPaddingModifier = Modifier.padding(bottom = BOTTOM_BAR_HEIGHT)
             when (position) {
-                Tab.Home.position -> Home(bottomPaddingModifier)
-                Tab.Albums.position -> Albums(bottomPaddingModifier)
-                Tab.Settings.position -> Settings(bottomPaddingModifier)
+                Tab.Home.position -> Home()
+                Tab.Albums.position -> Albums()
+                Tab.Settings.position -> Settings()
             }
         }
 

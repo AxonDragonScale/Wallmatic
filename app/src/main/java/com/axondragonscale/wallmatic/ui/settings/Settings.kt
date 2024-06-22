@@ -4,8 +4,10 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.model.UIMode
+import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -81,6 +84,8 @@ private fun Settings(
             onUiModeUpdate = { onEvent(SettingsUiEvent.UIModeUpdate(it)) },
             onDynamicThemeToggle = { onEvent(SettingsUiEvent.DynamicThemeToggle(it)) }
         )
+
+        Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
     }
 }
 

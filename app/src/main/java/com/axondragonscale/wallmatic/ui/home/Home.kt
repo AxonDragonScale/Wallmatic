@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -55,7 +57,7 @@ private fun Home(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(horizontal = 8.dp)
             .verticalScroll(rememberScrollState())
     ) {
         HomeScreenCard(
@@ -65,6 +67,8 @@ private fun Home(
         LockScreenCard(
             modifier = Modifier.padding(vertical = 8.dp)
         )
+
+        Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
     }
 }
 
@@ -124,6 +128,10 @@ private fun LockScreenCard(
             supportingColor = MaterialTheme.colorScheme.secondary,
         )
     )
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(400.dp))
 }
 
 
