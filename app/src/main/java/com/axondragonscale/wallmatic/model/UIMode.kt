@@ -6,5 +6,9 @@ package com.axondragonscale.wallmatic.model
 enum class UIMode {
     LIGHT,
     AUTO,
-    DARK,
+    DARK;
+
+    companion object {
+        fun fromOrdinal(ordinal: Int) = UIMode.entries[ordinal]
+    }
 }

@@ -40,7 +40,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun WallmaticTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -60,6 +60,7 @@ fun WallmaticTheme(
             window.statusBarColor = colorScheme.background.toArgb()
             window.navigationBarColor = colorScheme.primaryContainer.toArgb()
             WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
                 isAppearanceLightNavigationBars = !darkTheme
             }
         }

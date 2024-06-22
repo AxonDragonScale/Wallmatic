@@ -73,7 +73,14 @@ fun Settings(
             .padding(8.dp)
     ) {
         Header(modifier = Modifier.padding(top = 16.dp))
-        ThemeCard(modifier = Modifier.padding(top = 24.dp))
+
+        ThemeCard(
+            modifier = Modifier.padding(top = 24.dp),
+            uiMode = uiState.uiMode,
+            dynamicTheme = uiState.dynamicTheme,
+            onUiModeUpdate = { onEvent(SettingsUiEvent.UIModeUpdate(it)) },
+            onDynamicThemeToggle = { onEvent(SettingsUiEvent.DynamicThemeToggle(it)) }
+        )
     }
 }
 
@@ -89,7 +96,13 @@ private fun Header(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ThemeCard(modifier: Modifier = Modifier) = Card(
+private fun ThemeCard(
+    modifier: Modifier = Modifier,
+    uiMode: UIMode,
+    dynamicTheme: Boolean,
+    onUiModeUpdate: (UIMode) -> Unit,
+    onDynamicThemeToggle: (Boolean) -> Unit,
+) = Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(12.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -103,13 +116,14 @@ private fun ThemeCard(modifier: Modifier = Modifier) = Card(
 
     DarkModeCard(
         modifier = Modifier.padding(top = 4.dp),
-        uiMode = UIMode.AUTO
+        uiMode = uiMode,
+        onUiModeUpdate = onUiModeUpdate,
     )
 
     DynamicThemeCard(
         modifier = Modifier.padding(bottom = 4.dp),
-        dynamicTheme = false,
-        onDynamicThemeToggle = { }
+        dynamicTheme = dynamicTheme,
+        onDynamicThemeToggle = onDynamicThemeToggle,
     )
 }
 
@@ -124,6 +138,7 @@ fun UIMode.getIcon(isActive: Boolean) = when (this) {
 private fun DarkModeCard(
     modifier: Modifier = Modifier,
     uiMode: UIMode,
+    onUiModeUpdate: (UIMode) -> Unit,
 ) {
     BaseSettingCard(
         modifier = modifier,
@@ -154,7 +169,7 @@ private fun DarkModeCard(
                     val isActive = mode == uiMode
                     SegmentedButton(
                         selected = isActive,
-                        onClick = {},
+                        onClick = { onUiModeUpdate(mode) },
                         label = {
                             Icon(
                                 imageVector = mode.getIcon(isActive),
@@ -240,10 +255,10 @@ private fun BaseSettingCard(
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun EmptyJokeListPreview() {
+private fun SettingsPreview() {
     WallmaticTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-            val uiState = remember { SettingsUiState(1, true) }
+            val uiState = remember { SettingsUiState() }
             Settings(
                 uiState = uiState,
                 onEvent = { }
