@@ -62,7 +62,7 @@ fun Settings(
 }
 
 @Composable
-fun Settings(
+private fun Settings(
     modifier: Modifier = Modifier,
     uiState: SettingsUiState,
     onEvent: (SettingsUiEvent) -> Unit,

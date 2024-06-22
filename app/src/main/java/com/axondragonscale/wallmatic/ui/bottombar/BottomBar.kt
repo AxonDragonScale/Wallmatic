@@ -37,6 +37,8 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  * Created by Ronak Harkhani on 06/06/24
  */
 
+val BOTTOM_BAR_HEIGHT = 64.dp
+
 @Composable
 fun BottomBar(
     modifier: Modifier = Modifier,
@@ -47,7 +49,7 @@ fun BottomBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(BOTTOM_BAR_HEIGHT)
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(topStartPercent = 40, topEndPercent = 40)
