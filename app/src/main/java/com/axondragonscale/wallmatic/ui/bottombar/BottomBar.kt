@@ -114,7 +114,7 @@ fun BottomBar(
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun BottomBarPreview() {
+private fun Preview() {
     WallmaticTheme {
         var currentTab by remember { mutableStateOf<Tab>(Tab.Home) }
         Box(

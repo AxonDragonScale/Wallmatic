@@ -260,7 +260,7 @@ private fun BaseSettingCard(
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun SettingsPreview() {
+private fun Preview() {
     WallmaticTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
             val uiState = remember { SettingsUiState() }
