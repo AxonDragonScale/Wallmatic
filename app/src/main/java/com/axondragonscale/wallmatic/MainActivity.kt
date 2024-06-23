@@ -31,6 +31,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // TODO: Splash Screen.
+        // TODO: Make sure initialValue to actual UIMode transition is not visible.
+
         setContent {
             val uiMode by appPrefsRepository.uiModeFlow
                 .collectAsStateWithLifecycle(initialValue = UIMode.AUTO)
