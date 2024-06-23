@@ -8,10 +8,18 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PhotoAlbum
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.axondragonscale.wallmatic.ui.bottombar.Tab.Albums
+import com.axondragonscale.wallmatic.ui.bottombar.Tab.Home
+import com.axondragonscale.wallmatic.ui.bottombar.Tab.Settings
 
 /**
  * Created by Ronak Harkhani on 06/06/24
  */
+
+// Keeping this list in the companion object of Tab can cause problems with class initialization
+// Ex - 1st use of Home -> Home Init -> Tab (super class) Init -> Companion object Init -> All Tabs Init -> Tab (super class) Init
+// The data object can become null due to cyclic loop in initialization
+val Tabs = listOf(Home, Albums, Settings)
 
 sealed class Tab(
     val name: String,
@@ -19,10 +27,6 @@ sealed class Tab(
     val activeIcon: ImageVector,
     val inactiveIcon: ImageVector,
 ) {
-
-    companion object {
-        val all = listOf(Home, Albums, Settings)
-    }
 
     data object Home : Tab(
         name = "HOME",

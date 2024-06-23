@@ -1,8 +1,8 @@
 [versions]
 # Plugin Versions
 androidGradlePlugin = "8.4.1"
-kotlin = "1.9.23"
-ksp = "1.9.23-1.0.19"
+kotlin = "1.9.24"
+ksp = "1.9.24-1.0.20"
 googleServices = "4.4.2"
 firebaseCrashlytics = "3.0.1"
 firebasePerf = "1.4.2"
@@ -12,7 +12,7 @@ applicationId = "com.axondragonscale.wallmatic"
 compileSdk = "34"
 minSdk = "26"
 targetSdk = "34"
-composeCompiler = "1.5.11"
+composeCompiler = "1.5.14"
 versionCode = "100"
 versionName = "1.0.0"
 
@@ -20,7 +20,7 @@ versionName = "1.0.0"
 activityCompose = "1.9.0"
 androidxGlance = "1.0.0"
 androidxLifecycle = "2.8.2"
-androidxNavigation = "2.7.7"
+androidxNavigation = "2.8.0-beta03"
 chucker = "4.0.0"
 composeBom = "2024.06.00"
 firebaseBom = "33.1.0"
@@ -71,6 +71,7 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "androidxNavigation" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
 room = { id = "androidx.room", version.ref = "room" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
