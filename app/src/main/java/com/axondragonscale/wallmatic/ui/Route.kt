@@ -11,4 +11,7 @@ object Route {
     @Serializable
     data class Dashboard(val tab: Int = Tab.Home.position)
 
+    @Serializable
+    object Album
+
 }

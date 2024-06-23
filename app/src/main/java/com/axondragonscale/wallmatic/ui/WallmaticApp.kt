@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.axondragonscale.wallmatic.ui.album.Album
 import com.axondragonscale.wallmatic.ui.bottombar.Tabs
 import com.axondragonscale.wallmatic.ui.dashboard.Dashboard
 
@@ -31,9 +32,17 @@ fun WallmaticApp() {
     ) {
         // TODO: Deeplinking to tabs
         // TODO: Create composable/NavGraph in the screen's package itself
+
         composable<Route.Dashboard> { backStackEntry ->
             val dashboard: Route.Dashboard = backStackEntry.toRoute()
-            Dashboard(tab = Tabs[dashboard.tab])
+            Dashboard(
+                navController = navController,
+                tab = Tabs[dashboard.tab],
+            )
+        }
+
+        composable<Route.Album> {
+            Album()
         }
     }
 }

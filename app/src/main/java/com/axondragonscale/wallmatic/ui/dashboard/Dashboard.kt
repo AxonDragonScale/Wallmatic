@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.axondragonscale.wallmatic.ui.albums.Albums
 import com.axondragonscale.wallmatic.ui.bottombar.BottomBar
 import com.axondragonscale.wallmatic.ui.bottombar.Tab
@@ -22,7 +23,11 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun Dashboard(modifier: Modifier = Modifier, tab: Tab) {
+fun Dashboard(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    tab: Tab,
+) {
     Box(modifier = modifier.fillMaxSize()) {
         val pagerState = rememberPagerState(
             initialPage = tab.position,
@@ -33,7 +38,7 @@ fun Dashboard(modifier: Modifier = Modifier, tab: Tab) {
         HorizontalPager(state = pagerState) { position ->
             when (position) {
                 Tab.Home.position -> Home()
-                Tab.Albums.position -> Albums()
+                Tab.Albums.position -> Albums(navController = navController)
                 Tab.Settings.position -> Settings()
             }
         }

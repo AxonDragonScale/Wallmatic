@@ -25,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
@@ -34,7 +36,10 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  */
 
 @Composable
-fun Albums(modifier: Modifier = Modifier) {
+fun Albums(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+) {
     val vm: AlbumsVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     var showCreateAlbumDialog by rememberSaveable { mutableStateOf(false) }
@@ -53,7 +58,10 @@ fun Albums(modifier: Modifier = Modifier) {
     if (showCreateAlbumDialog) {
         AlbumNameDialog(
             onDismiss = { showCreateAlbumDialog = false },
-            onConfirm = { vm.onEvent(AlbumsUiEvent.CreateAlbum(it)) },
+            onConfirm = {
+                vm.onEvent(AlbumsUiEvent.CreateAlbum(it))
+                navController.navigate(route = Route.Album)
+            },
         )
     }
 }
