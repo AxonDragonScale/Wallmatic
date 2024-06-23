@@ -34,12 +34,11 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  */
 
 @Composable
-fun Albums(
-    modifier: Modifier = Modifier,
-    vm: AlbumsVM = hiltViewModel(),
-) {
+fun Albums(modifier: Modifier = Modifier) {
+    val vm: AlbumsVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     var showCreateAlbumDialog by rememberSaveable { mutableStateOf(false) }
+
     Albums(
         modifier = modifier,
         uiState = uiState,
@@ -60,7 +59,7 @@ fun Albums(
 }
 
 @Composable
-fun Albums(
+private fun Albums(
     modifier: Modifier = Modifier,
     uiState: AlbumsUiState,
     onEvent: (AlbumsUiEvent) -> Unit,

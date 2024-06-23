@@ -52,10 +52,8 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  */
 
 @Composable
-fun Settings(
-    modifier: Modifier = Modifier,
-    vm: SettingsVM = hiltViewModel(),
-) {
+fun Settings(modifier: Modifier = Modifier) {
+    val vm: SettingsVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     Settings(
         modifier = modifier,

@@ -14,7 +14,7 @@ import javax.inject.Inject
  * Created by Ronak Harkhani on 09/06/24
  */
 @HiltViewModel
-class SettingsVM @Inject constructor(
+internal class SettingsVM @Inject constructor(
     private val appPrefsRepository: AppPrefsRepository,
 ) : ViewModel() {
 

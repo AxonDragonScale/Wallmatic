@@ -1,4 +1,4 @@
-package com.axondragonscale.wallmatic.ui.albums
+package com.axondragonscale.wallmatic.ui.album
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,12 +9,11 @@ import javax.inject.Inject
  * Created by Ronak Harkhani on 23/06/24
  */
 @HiltViewModel
-internal class AlbumsVM @Inject constructor(): ViewModel() {
+internal class AlbumVM @Inject constructor(): ViewModel() {
 
-    val uiState = MutableStateFlow(AlbumsUiState())
+    val uiState = MutableStateFlow(AlbumUiState())
 
-    fun onEvent(event: AlbumsUiEvent) {
+    fun onEvent(event: AlbumUiEvent) {
 
     }
-
 }
