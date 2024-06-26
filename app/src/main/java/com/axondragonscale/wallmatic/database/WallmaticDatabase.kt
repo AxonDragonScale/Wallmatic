@@ -4,16 +4,25 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.axondragonscale.wallmatic.database.WallmaticDatabase.Companion.DB_VERSION
+import com.axondragonscale.wallmatic.database.converter.ListConverter
+import com.axondragonscale.wallmatic.database.dao.AlbumDao
+import com.axondragonscale.wallmatic.database.entity.Album
+import com.axondragonscale.wallmatic.database.entity.Folder
 
 /**
  * Created by Ronak Harkhani on 23/06/24
  */
 @Database(
-    entities = [],
+    entities = [
+        Album::class,
+        Folder::class,
+    ],
     version = DB_VERSION,
 )
-abstract class WallmaticDatabase: RoomDatabase() {
+@TypeConverters(ListConverter::class)
+abstract class WallmaticDatabase : RoomDatabase() {
 
     companion object {
         const val DB_NAME = "WallmaticDatabase"
@@ -30,5 +39,7 @@ abstract class WallmaticDatabase: RoomDatabase() {
                 name = DB_NAME
             ).build()
     }
+
+    abstract fun albumDao(): AlbumDao
 
 }
