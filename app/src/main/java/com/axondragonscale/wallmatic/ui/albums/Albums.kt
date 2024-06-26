@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -88,6 +89,7 @@ private fun Albums(
                 .align(BottomEnd)
                 .padding(bottom = BOTTOM_BAR_HEIGHT)
                 .padding(8.dp),
+            shape = CircleShape,
             onClick = { onEvent(AlbumsUiEvent.ShowCreateAlbumDialog) },
         ) {
             Icon(
