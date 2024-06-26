@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 interface AlbumDao {
 
     @Query("SELECT * FROM album")
-    suspend fun getAlbumsWithFolders(): Flow<List<AlbumWithFolders>>
+    fun getAlbumsWithFolders(): Flow<List<AlbumWithFolders>>
 
     @Query("SELECT * FROM album WHERE id = :id")
     suspend fun getAlbumWithFolders(id: Int): AlbumWithFolders?
