@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +31,10 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  */
 
 @Composable
-fun Album(modifier: Modifier = Modifier) {
+fun Album(
+    modifier: Modifier = Modifier,
+    albumId: Int,
+) {
     val vm: AlbumVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
@@ -49,7 +53,9 @@ private fun Album(
 ) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column {
-
+            Text(
+                text = uiState.album ?: "Loading...",
+            )
         }
 
         var isExpanded by remember { mutableStateOf(false) }

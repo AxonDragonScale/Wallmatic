@@ -30,7 +30,9 @@ import androidx.navigation.NavController
 import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
+import com.axondragonscale.wallmatic.ui.common.collectWithLifecycle
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
+import kotlinx.coroutines.flow.receiveAsFlow
 
 /**
  * Created by Ronak Harkhani on 09/06/24
@@ -44,6 +46,13 @@ fun Albums(
     val vm: AlbumsVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     var showCreateAlbumDialog by rememberSaveable { mutableStateOf(false) }
+
+    vm.uiEffect.collectWithLifecycle { uiEffect ->
+        when (uiEffect) {
+            is AlbumsUiEffect.NavigateToAlbum ->
+                navController.navigate(route = Route.Album(uiEffect.albumId))
+        }
+    }
 
     Albums(
         modifier = modifier,
@@ -59,9 +68,8 @@ fun Albums(
     if (showCreateAlbumDialog) {
         AlbumNameDialog(
             onDismiss = { showCreateAlbumDialog = false },
-            onConfirm = {
-                vm.onEvent(AlbumsUiEvent.CreateAlbum(it))
-                navController.navigate(route = Route.Album)
+            onConfirm = { albumName ->
+                vm.onEvent(AlbumsUiEvent.CreateAlbum(albumName = albumName))
             },
         )
     }

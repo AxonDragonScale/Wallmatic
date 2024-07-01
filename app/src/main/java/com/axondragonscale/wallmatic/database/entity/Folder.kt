@@ -23,7 +23,7 @@ data class Folder(
     val name: String,
     val coverUri: String?,
     val folderUri: String,
-    val wallpaperUris: List<String>,
+    val wallpapers: List<Int>,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

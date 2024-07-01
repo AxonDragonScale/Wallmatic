@@ -6,6 +6,7 @@ import com.axondragonscale.wallmatic.database.dao.AlbumDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -18,7 +19,7 @@ object WallmaticModule {
 
     @Provides
     @Singleton
-    fun provideWallmaticDatabase(appContext: Context): WallmaticDatabase =
+    fun provideWallmaticDatabase(@ApplicationContext appContext: Context): WallmaticDatabase =
         WallmaticDatabase.create(appContext)
 
     @Provides

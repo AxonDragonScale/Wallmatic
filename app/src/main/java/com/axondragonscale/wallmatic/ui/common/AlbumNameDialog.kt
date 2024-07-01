@@ -38,8 +38,6 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  * Created by Ronak Harkhani on 23/06/24
  */
 
-// TODO: Rename to AlbumNameDialog
-
 @Composable
 fun AlbumNameDialog(
     currentAlbumName: String? = null,

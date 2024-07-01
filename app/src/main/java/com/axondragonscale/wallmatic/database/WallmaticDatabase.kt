@@ -6,10 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.axondragonscale.wallmatic.database.WallmaticDatabase.Companion.DB_VERSION
-import com.axondragonscale.wallmatic.database.converter.ListConverter
+import com.axondragonscale.wallmatic.database.converter.IntListConverter
+import com.axondragonscale.wallmatic.database.converter.StringListConverter
 import com.axondragonscale.wallmatic.database.dao.AlbumDao
 import com.axondragonscale.wallmatic.database.entity.Album
 import com.axondragonscale.wallmatic.database.entity.Folder
+import com.axondragonscale.wallmatic.database.entity.Wallpaper
 
 /**
  * Created by Ronak Harkhani on 23/06/24
@@ -18,10 +20,14 @@ import com.axondragonscale.wallmatic.database.entity.Folder
     entities = [
         Album::class,
         Folder::class,
+        Wallpaper::class,
     ],
     version = DB_VERSION,
 )
-@TypeConverters(ListConverter::class)
+@TypeConverters(
+    StringListConverter::class,
+    IntListConverter::class
+)
 abstract class WallmaticDatabase : RoomDatabase() {
 
     companion object {

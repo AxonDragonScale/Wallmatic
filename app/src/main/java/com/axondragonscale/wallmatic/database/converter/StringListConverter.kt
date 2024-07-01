@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 /**
  * Created by Ronak Harkhani on 26/06/24
  */
-object ListConverter {
+object StringListConverter {
 
     private val json = Json
 

@@ -5,8 +5,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import com.axondragonscale.wallmatic.database.entity.Album
-import com.axondragonscale.wallmatic.database.entity.AlbumWithFolders
 import com.axondragonscale.wallmatic.database.entity.Folder
+import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -16,16 +16,25 @@ import kotlinx.coroutines.flow.Flow
 interface AlbumDao {
 
     @Query("SELECT * FROM album")
-    fun getAlbumsWithFolders(): Flow<List<AlbumWithFolders>>
+    fun getAlbums(): Flow<List<Album>>
 
     @Query("SELECT * FROM album WHERE id = :id")
-    suspend fun getAlbumWithFolders(id: Int): AlbumWithFolders?
+    suspend fun getAlbum(id: Int): Album
+
+    @Query("SELECT * FROM folder WHERE id = :id")
+    suspend fun getFolder(id: Int): Folder
+
+    @Query("SELECT * FROM wallpaper WHERE id IN (:ids)")
+    suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
 
     @Upsert
-    suspend fun upsertAlbum(album: Album)
+    suspend fun upsertAlbum(album: Album): Long
 
     @Upsert
-    suspend fun upsertFolders(folders: List<Folder>)
+    suspend fun upsertFolders(folders: List<Folder>): LongArray
+
+    @Upsert
+    suspend fun upsertWallpapers(wallpaper: List<Wallpaper>): LongArray
 
     @Query("DELETE FROM album WHERE id = :id")
     suspend fun deleteAlbum(id: Int)
@@ -38,6 +47,9 @@ interface AlbumDao {
 
     @Query("DELETE FROM folder")
     suspend fun deleteAllFolders()
+
+    @Query("DELETE FROM wallpaper")
+    suspend fun deleteAllWallpapers()
 
     @Transaction
     suspend fun deleteAllData() {
