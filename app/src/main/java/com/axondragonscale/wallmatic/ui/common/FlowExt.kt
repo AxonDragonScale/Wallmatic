@@ -15,9 +15,9 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun <T> Flow<T>.collectWithLifecycle(onEffect: (T) -> Unit) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(this, lifecycleOwner.lifecycle) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(this, lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             withContext(Dispatchers.Main.immediate) {
                 this@collectWithLifecycle.collect(onEffect)
             }
