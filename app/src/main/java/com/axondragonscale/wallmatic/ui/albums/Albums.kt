@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -102,18 +103,28 @@ private fun Albums(
             onAlbumClick = { onEvent(AlbumsUiEvent.NavigateToAlbum(it.id)) }
         )
 
-        FloatingActionButton(
-            modifier = Modifier
-                .align(BottomCenter)
-                .padding(bottom = BOTTOM_BAR_HEIGHT + 24.dp),
-            shape = CircleShape,
-            onClick = { onEvent(AlbumsUiEvent.ShowCreateAlbumDialog) },
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = ""
-            )
-        }
+        CreateAlbumButton(
+            onCreateClick = { onEvent(AlbumsUiEvent.ShowCreateAlbumDialog) }
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.CreateAlbumButton(
+    modifier: Modifier = Modifier,
+    onCreateClick: () -> Unit,
+) {
+    FloatingActionButton(
+        modifier = modifier
+            .align(BottomCenter)
+            .padding(bottom = BOTTOM_BAR_HEIGHT + 24.dp),
+        shape = CircleShape,
+        onClick = onCreateClick,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Add,
+            contentDescription = ""
+        )
     }
 }
 

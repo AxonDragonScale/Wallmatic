@@ -1,6 +1,5 @@
 package com.axondragonscale.wallmatic.ui
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.navigationBarsPadding

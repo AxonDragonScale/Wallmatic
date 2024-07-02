@@ -1,8 +1,12 @@
 package com.axondragonscale.wallmatic.ui.album
 
 import android.content.res.Configuration
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,30 +63,68 @@ private fun Album(
             )
         }
 
-        var isExpanded by remember { mutableStateOf(false) }
-        FluidFabButton(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp),
-            isExpanded = isExpanded,
-            duration = 500,
-            onClick = { isExpanded = !isExpanded },
-            leftButton = FluidFabButtonProperties(
-                icon = Icons.Default.Folder,
-                onClick = {
-                    isExpanded = !isExpanded
-                    // TODO
-                }
-            ),
-            rightButton = FluidFabButtonProperties(
-                icon = Icons.Default.Image,
-                onClick = {
-                    isExpanded = !isExpanded
-                    // TODO
-                }
-            ),
+        PickerButton(
+            onFolderSelected = { },
+            onImagesSelected = { },
         )
     }
+}
+
+@Composable
+fun BoxScope.PickerButton(
+    modifier: Modifier = Modifier,
+    onFolderSelected: (Uri) -> Unit,
+    onImagesSelected: (List<Uri>) -> Unit,
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    val folderPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+        onResult = {
+            // TODO: Take persistable uri permission
+            println("zeref $it")
+        }
+    )
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenMultipleDocuments(),
+        onResult = {
+            // TODO: Take persistable uri permission
+            println("zeref $it")
+        }
+    )
+
+//    // Photo Picker. Provided by Photos app. Albums available.
+//    val photoPickerLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+//        onResult = {
+//            println("zeref $it")
+//        }
+//    )
+
+    FluidFabButton(
+        modifier = modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = 24.dp),
+        isExpanded = isExpanded,
+        duration = 500,
+        onClick = { isExpanded = !isExpanded },
+        leftButton = FluidFabButtonProperties(
+            icon = Icons.Default.Folder,
+            onClick = {
+                isExpanded = !isExpanded
+                folderPickerLauncher.launch(null)
+            }
+        ),
+        rightButton = FluidFabButtonProperties(
+            icon = Icons.Default.Image,
+            onClick = {
+                isExpanded = !isExpanded
+                imagePickerLauncher.launch(arrayOf("image/*"))
+            }
+        ),
+    )
 }
 
 @Preview(name = "Light Mode", showBackground = true)

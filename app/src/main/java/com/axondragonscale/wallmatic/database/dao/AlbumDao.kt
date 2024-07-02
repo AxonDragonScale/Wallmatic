@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AlbumDao {
 
+    // Get
+
     @Query("SELECT * FROM album")
     fun getAlbums(): Flow<List<Album>>
 
@@ -27,6 +29,9 @@ interface AlbumDao {
     @Query("SELECT * FROM wallpaper WHERE id IN (:ids)")
     suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
 
+
+    // Insert / Update
+
     @Upsert
     suspend fun upsertAlbum(album: Album): Long
 
@@ -35,6 +40,9 @@ interface AlbumDao {
 
     @Upsert
     suspend fun upsertWallpapers(wallpaper: List<Wallpaper>): LongArray
+
+
+    // Delete
 
     @Query("DELETE FROM album WHERE id = :id")
     suspend fun deleteAlbum(id: Int)
@@ -48,10 +56,13 @@ interface AlbumDao {
     @Transaction
     suspend fun deleteFullAlbum(id: Int) {
         val album = getAlbum(id)
-        deleteAlbum(id)
+        deleteAlbum(album.id)
         deleteFolders(album.folders)
         deleteWallpapers(album.wallpapers)
     }
+
+
+    // Delete All
 
     @Query("DELETE FROM album")
     suspend fun deleteAllAlbums()
