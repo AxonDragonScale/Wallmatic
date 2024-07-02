@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,11 +26,20 @@ internal class AlbumsVM @Inject constructor(
     private val uiEffectChannel = Channel<AlbumsUiEffect>()
     val uiEffect = uiEffectChannel.receiveAsFlow().flowOn(Dispatchers.Main.immediate)
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getAlbums().collect { albums ->
+                uiState.update { it.copy(isLoading = false, albums = albums) }
+            }
+        }
+    }
+
     fun onEvent(event: AlbumsUiEvent): Any = when (event) {
         is AlbumsUiEvent.CreateAlbum -> createAlbum(event)
 
         // Handled in the view
-        AlbumsUiEvent.ShowCreateAlbumDialog -> Unit
+        is AlbumsUiEvent.ShowCreateAlbumDialog -> Unit
+        is AlbumsUiEvent.NavigateToAlbum -> Unit
     }
 
     private fun createAlbum(event: AlbumsUiEvent.CreateAlbum) = viewModelScope.launch(Dispatchers.IO) {

@@ -6,4 +6,5 @@ package com.axondragonscale.wallmatic.ui.albums
 internal sealed interface AlbumsUiEvent {
     data object ShowCreateAlbumDialog : AlbumsUiEvent
     data class CreateAlbum(val albumName: String) : AlbumsUiEvent
+    data class NavigateToAlbum(val albumId: Int): AlbumsUiEvent
 }

@@ -42,6 +42,17 @@ interface AlbumDao {
     @Query("DELETE FROM folder WHERE id IN (:ids)")
     suspend fun deleteFolders(ids: List<Int>)
 
+    @Query("DELETE FROM wallpaper WHERE id IN (:ids)")
+    suspend fun deleteWallpapers(ids: List<Int>)
+
+    @Transaction
+    suspend fun deleteFullAlbum(id: Int) {
+        val album = getAlbum(id)
+        deleteAlbum(id)
+        deleteFolders(album.folders)
+        deleteWallpapers(album.wallpapers)
+    }
+
     @Query("DELETE FROM album")
     suspend fun deleteAllAlbums()
 
@@ -55,5 +66,6 @@ interface AlbumDao {
     suspend fun deleteAllData() {
         deleteAllAlbums()
         deleteAllFolders()
+        deleteAllWallpapers()
     }
 }

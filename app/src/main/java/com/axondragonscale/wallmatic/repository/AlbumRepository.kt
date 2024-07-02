@@ -4,6 +4,7 @@ import android.content.Context
 import com.axondragonscale.wallmatic.database.dao.AlbumDao
 import com.axondragonscale.wallmatic.database.entity.Album
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -22,5 +23,7 @@ class AlbumRepository @Inject constructor(
     suspend fun getAlbum(albumId: Int): Album {
         return albumDao.getAlbum(albumId)
     }
+
+    fun getAlbums() = albumDao.getAlbums()
 
 }
