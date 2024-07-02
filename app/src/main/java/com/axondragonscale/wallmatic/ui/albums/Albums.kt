@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -139,7 +138,7 @@ private fun AlbumList(
             Box(
                 modifier = Modifier
                     .height(200.dp)
-                    .border(1.dp, Color.Cyan)
+                    .border(1.dp, MaterialTheme.colorScheme.primary)
                     .clickable {
                         onAlbumClick(album)
                     },

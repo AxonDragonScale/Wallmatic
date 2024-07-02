@@ -1,5 +1,7 @@
 package com.axondragonscale.wallmatic.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -29,6 +31,10 @@ fun WallmaticApp() {
             .background(MaterialTheme.colorScheme.background),
         navController = navController,
         startDestination = Route.Dashboard(),
+        enterTransition = { slideIntoContainer(SlideDirection.Left) },
+        exitTransition = { slideOutOfContainer(SlideDirection.Left) },
+        popEnterTransition = { slideIntoContainer(SlideDirection.Right) },
+        popExitTransition = { slideOutOfContainer(SlideDirection.Right) }
     ) {
         // TODO: Deeplinking to tabs
         // TODO: Create composable/NavGraph in the screen's package itself
