@@ -1,10 +1,10 @@
 [versions]
 # Plugin Versions
-androidGradlePlugin = "8.4.1"
+androidGradlePlugin = "8.5.0"
 kotlin = "1.9.24"
 ksp = "1.9.24-1.0.20"
 googleServices = "4.4.2"
-firebaseCrashlytics = "3.0.1"
+firebaseCrashlytics = "3.0.2"
 firebasePerf = "1.4.2"
 
 # Build Versions
@@ -18,12 +18,12 @@ versionName = "1.0.0"
 
 # Dependencies
 activityCompose = "1.9.0"
-androidxGlance = "1.0.0"
-androidxLifecycle = "2.8.2"
-androidxNavigation = "2.8.0-beta03"
+androidxGlance = "1.1.0"
+androidxLifecycle = "2.8.3"
+androidxNavigation = "2.8.0-beta04"
 chucker = "4.0.0"
 composeBom = "2024.06.00"
-firebaseBom = "33.1.0"
+firebaseBom = "33.1.1"
 coreKtx = "1.13.1"
 datastorePrefs = "1.1.1"
 daggerHilt = "2.51.1"
