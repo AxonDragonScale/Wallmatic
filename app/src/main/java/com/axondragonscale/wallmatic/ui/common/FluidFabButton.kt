@@ -290,8 +290,8 @@ private fun Preview() {
         ) {
             var isExpanded by remember { mutableStateOf(false) }
             FluidFabButton(
-                modifier = Modifier.border(2.dp, Color.Red),
                 isExpanded = isExpanded,
+                duration = 500,
                 onClick = { isExpanded = !isExpanded },
                 leftButton = FluidFabButtonProperties(
                     icon = Icons.Default.Folder,

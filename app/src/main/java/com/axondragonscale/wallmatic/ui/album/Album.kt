@@ -64,6 +64,7 @@ private fun Album(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp),
             isExpanded = isExpanded,
+            duration = 500,
             onClick = { isExpanded = !isExpanded },
             leftButton = FluidFabButtonProperties(
                 icon = Icons.Default.Folder,
