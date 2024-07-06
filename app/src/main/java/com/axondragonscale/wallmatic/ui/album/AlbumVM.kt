@@ -59,7 +59,6 @@ internal class AlbumVM @Inject constructor(
         val wallpaperIds = repository.saveWallpapers(wallpaperEntities)
 
         val folder = Folder(
-            albumId = albumId,
             name = FileUtil.getFolderName(context, uri),
             coverUri = wallpapers.random().toString(),
             folderUri = uri.toString(),

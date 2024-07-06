@@ -4,22 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.ui.WallmaticApp
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,14 +27,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // TODO: Splash Screen.
-        // TODO: Make sure initialValue to actual UIMode transition is not visible.
+        val splashScreen = installSplashScreen()
+        var keepSplashScreen = true
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+
+        val (initialUiMode, initialDynamicTheme) = runBlocking {
+            appPrefsRepository.uiModeFlow.first() to appPrefsRepository.dynamicThemeFlow.first()
+        }
+        keepSplashScreen = false
 
         setContent {
             val uiMode by appPrefsRepository.uiModeFlow
-                .collectAsStateWithLifecycle(initialValue = UIMode.AUTO)
+                .collectAsStateWithLifecycle(initialValue = initialUiMode)
             val dynamicTheme by appPrefsRepository.dynamicThemeFlow
-                .collectAsStateWithLifecycle(initialValue = false)
+                .collectAsStateWithLifecycle(initialValue = initialDynamicTheme)
 
             WallmaticTheme(
                 darkTheme = isDarkTheme(uiMode),
