@@ -7,19 +7,8 @@ import androidx.room.PrimaryKey
 /**
  * Created by Ronak Harkhani on 26/06/24
  */
-@Entity(
-    tableName = "folder",
-    foreignKeys = [
-        ForeignKey(
-            entity = Album::class,
-            parentColumns = ["id"],
-            childColumns = ["albumId"],
-            onDelete = ForeignKey.CASCADE,
-        )
-    ],
-)
+@Entity(tableName = "folder")
 data class Folder(
-    val albumId: Int,
     val name: String,
     val coverUri: String?,
     val folderUri: String,

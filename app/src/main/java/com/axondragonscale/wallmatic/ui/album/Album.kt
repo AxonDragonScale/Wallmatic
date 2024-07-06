@@ -9,7 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
@@ -23,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
+import com.axondragonscale.wallmatic.util.takePersistableUriPermission
 
 /**
  * Created by Ronak Harkhani on 23/06/24
@@ -56,16 +63,28 @@ private fun Album(
     uiState: AlbumUiState,
     onEvent: (AlbumUiEvent) -> Unit,
 ) {
+    if (uiState.loading) return
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column {
-            Text(
-                text = uiState.album ?: "Loading...",
-            )
+            Text(text = uiState.album?.name ?: "Loading...")
+
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+            ) {
+                items(uiState.album!!.folders) {
+                    Text(modifier = Modifier.fillMaxWidth().height(50.dp), text = it.name)
+                }
+
+                items(uiState.album.wallpapers) {
+                    Text(modifier = Modifier.fillMaxWidth().height(50.dp), text = it.uri)
+                }
+            }
         }
 
+        val context = LocalContext.current
         PickerButton(
-            onFolderSelected = { },
-            onImagesSelected = { },
+            onFolderSelected = { onEvent(AlbumUiEvent.FolderSelected(context, it)) },
+            onImagesSelected = { onEvent(AlbumUiEvent.ImagesSelected(context, it)) },
         )
     }
 }
@@ -77,22 +96,15 @@ fun BoxScope.PickerButton(
     onImagesSelected: (List<Uri>) -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     val folderPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
-        onResult = {
-            // TODO: Take persistable uri permission
-            println("zeref $it")
-        }
+        onResult = { uri -> if (uri != null) onFolderSelected(uri) }
     )
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments(),
-        onResult = {
-            // TODO: Take persistable uri permission
-            println("zeref $it")
-        }
+        onResult = { uris -> if (uris.isNotEmpty()) onImagesSelected(uris) }
     )
 
 //    // Photo Picker. Provided by Photos app. Albums available.

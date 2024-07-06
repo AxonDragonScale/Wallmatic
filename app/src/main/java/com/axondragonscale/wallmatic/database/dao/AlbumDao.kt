@@ -23,6 +23,9 @@ interface AlbumDao {
     @Query("SELECT * FROM album WHERE id = :id")
     suspend fun getAlbum(id: Int): Album
 
+    @Query("SELECT * FROM folder WHERE id in (:ids)")
+    suspend fun getFolders(ids: List<Int>): List<Folder>
+
     @Query("SELECT * FROM folder WHERE id = :id")
     suspend fun getFolder(id: Int): Folder
 
@@ -30,17 +33,16 @@ interface AlbumDao {
     suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
 
 
-    // Insert / Update
+    // Upsert
 
     @Upsert
     suspend fun upsertAlbum(album: Album): Long
 
     @Upsert
-    suspend fun upsertFolders(folders: List<Folder>): LongArray
+    suspend fun upsertFolder(folder: Folder): Long
 
     @Upsert
     suspend fun upsertWallpapers(wallpaper: List<Wallpaper>): LongArray
-
 
     // Delete
 
@@ -57,8 +59,8 @@ interface AlbumDao {
     suspend fun deleteFullAlbum(id: Int) {
         val album = getAlbum(id)
         deleteAlbum(album.id)
-        deleteFolders(album.folders)
-        deleteWallpapers(album.wallpapers)
+        deleteFolders(album.folderIds)
+        deleteWallpapers(album.wallpaperIds)
     }
 
 
