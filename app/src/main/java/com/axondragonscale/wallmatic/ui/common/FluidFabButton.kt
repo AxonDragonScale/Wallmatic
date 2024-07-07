@@ -190,6 +190,7 @@ private fun ExpandableFabButton(
         AnimatedFab(
             modifier = Modifier.rotate(45 * 5 * iconRotation),
             icon = if (renderIcons) Icons.Default.Add else null,
+            iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
             backgroundColor = Color.Transparent,
             onClick = onClick
         )
@@ -202,6 +203,7 @@ private fun AnimatedFab(
     backgroundColor: Color = FloatingActionButtonDefaults.containerColor,
     icon: ImageVector?,
     iconAlpha: Float = 1f,
+    iconColor: Color? = null,
     onClick: (() -> Unit)? = null,
 ) {
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
@@ -216,7 +218,7 @@ private fun AnimatedFab(
                 Icon(
                     imageVector = it,
                     contentDescription = null,
-                    tint = LocalContentColor.current.copy(alpha = iconAlpha)
+                    tint = (iconColor ?: LocalContentColor.current).copy(alpha = iconAlpha)
                 )
             }
         }
