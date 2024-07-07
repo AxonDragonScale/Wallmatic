@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
@@ -36,20 +35,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.FullFolder
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
+import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -175,19 +172,6 @@ private fun Folder(
             }
         }
     }
-}
-
-@Composable
-private fun Wallpaper(
-    modifier: Modifier = Modifier,
-    uri: String,
-    cornerRadius: Dp = 16.dp,
-) {
-    AsyncImage(
-        modifier = modifier.clip(RoundedCornerShape(cornerRadius)),
-        model = uri,
-        contentDescription = ""
-    )
 }
 
 @Composable
