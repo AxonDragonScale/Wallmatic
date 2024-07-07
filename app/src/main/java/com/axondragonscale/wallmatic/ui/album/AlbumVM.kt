@@ -46,6 +46,8 @@ internal class AlbumVM @Inject constructor(
     private fun onFolderSelected(
         event: AlbumUiEvent.FolderSelected,
     ) = viewModelScope.launch(Dispatchers.IO) {
+        // TODO: Move main logic to repository? Event won't need context then.
+
         val (context, uri) = event
         context.takePersistableUriPermission(uri)
 
@@ -77,6 +79,8 @@ internal class AlbumVM @Inject constructor(
     private fun onImagesSelected(
         event: AlbumUiEvent.ImagesSelected,
     ) = viewModelScope.launch(Dispatchers.IO) {
+        // TODO: Move main logic to repository? Event won't need context then.
+
         val (context, uris) = event
         uris.forEach { uri ->
             context.takePersistableUriPermission(uri)

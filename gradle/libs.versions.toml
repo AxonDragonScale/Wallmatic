@@ -23,6 +23,7 @@ androidxGlance = "1.1.0"
 androidxLifecycle = "2.8.3"
 androidxNavigation = "2.8.0-beta04"
 chucker = "4.0.0"
+coil = "2.6.0"
 composeBom = "2024.06.00"
 firebaseBom = "33.1.1"
 coreKtx = "1.13.1"
@@ -40,6 +41,7 @@ androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.re
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-glance-widget = { module = "androidx.glance:glance-appwidget", version.ref = "androidxGlance" }
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "androidxGlance" }
+coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 datastore-prefs = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePrefs" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
