@@ -84,13 +84,11 @@ private fun HomeScreenCard(
 ) = Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(12.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
 ) {
     Text(
         modifier = Modifier.padding(top = 8.dp, start = 12.dp),
         text = "Home Screen",
         style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
     )
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -103,13 +101,11 @@ private fun LockScreenCard(
 ) = Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(12.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
 ) {
     Text(
         modifier = Modifier.padding(top = 8.dp, start = 12.dp),
         text = "Lock Screen",
         style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
     )
 
     ListItem(
@@ -127,12 +123,6 @@ private fun LockScreenCard(
                 onCheckedChange = {}
             )
         },
-        colors = ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            leadingIconColor = MaterialTheme.colorScheme.primary,
-            headlineColor = MaterialTheme.colorScheme.primary,
-            supportingColor = MaterialTheme.colorScheme.secondary,
-        )
     )
 
     Box(modifier = Modifier

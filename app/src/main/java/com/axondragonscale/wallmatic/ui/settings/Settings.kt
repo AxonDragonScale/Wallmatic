@@ -100,13 +100,11 @@ private fun ThemeCard(
 ) = Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(12.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
 ) {
     Text(
         modifier = Modifier.padding(top = 8.dp, start = 12.dp),
         text = "Appearance",
         style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
     )
 
     DarkModeCard(
@@ -122,7 +120,7 @@ private fun ThemeCard(
     )
 }
 
-fun UIMode.getIcon(isActive: Boolean) = when (this) {
+private fun UIMode.getIcon(isActive: Boolean) = when (this) {
     UIMode.LIGHT -> if (isActive) Icons.Filled.LightMode else Icons.Outlined.LightMode
     UIMode.DARK -> if (isActive) Icons.Filled.DarkMode else Icons.Outlined.DarkMode
     UIMode.AUTO -> if (isActive) Icons.Filled.BrightnessAuto else Icons.Outlined.BrightnessAuto
@@ -187,7 +185,7 @@ private fun DarkModeCard(
 }
 
 @Composable
-fun DynamicThemeCard(
+private fun DynamicThemeCard(
     modifier: Modifier = Modifier,
     dynamicTheme: Boolean,
     onDynamicThemeToggle: (Boolean) -> Unit,
@@ -239,10 +237,8 @@ private fun BaseSettingCard(
         supportingContent = supportingContent,
         trailingContent = trailingContent,
         colors = ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.onPrimary,
             leadingIconColor = MaterialTheme.colorScheme.primary,
             headlineColor = MaterialTheme.colorScheme.primary,
-            supportingColor = MaterialTheme.colorScheme.secondary,
         )
     )
 }
