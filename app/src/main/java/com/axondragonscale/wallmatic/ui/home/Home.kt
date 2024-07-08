@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
+import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -60,6 +61,11 @@ private fun Home(
             .padding(horizontal = 8.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        TabHeader(
+            modifier = Modifier.padding(vertical = 16.dp),
+            text = "Wallmatic"
+        )
+
         HomeScreenCard(
             modifier = Modifier
         )

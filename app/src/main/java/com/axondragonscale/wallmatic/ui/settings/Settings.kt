@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
+import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -73,10 +74,12 @@ private fun Settings(
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        Header(modifier = Modifier.padding(top = 16.dp))
+        TabHeader(
+            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
+            text = "Settings"
+        )
 
         ThemeCard(
-            modifier = Modifier.padding(top = 24.dp),
             uiMode = uiState.uiMode,
             dynamicTheme = uiState.dynamicTheme,
             onUiModeUpdate = { onEvent(SettingsUiEvent.UIModeUpdate(it)) },
@@ -85,17 +88,6 @@ private fun Settings(
 
         Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
     }
-}
-
-@Composable
-private fun Header(modifier: Modifier = Modifier) {
-    Text(
-        modifier = modifier,
-        text = "Settings",
-        style = MaterialTheme.typography.displayMedium,
-        color = MaterialTheme.colorScheme.primary,
-        fontWeight = FontWeight.Bold,
-    )
 }
 
 @Composable
