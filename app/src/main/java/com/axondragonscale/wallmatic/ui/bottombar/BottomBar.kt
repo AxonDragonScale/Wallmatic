@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,7 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
  */
 
 val BOTTOM_BAR_HEIGHT = 64.dp
+private val BottomBarShape = RoundedCornerShape(topStartPercent = 40, topEndPercent = 40)
 
 @Composable
 fun BottomBar(
@@ -50,9 +52,10 @@ fun BottomBar(
         modifier = modifier
             .fillMaxWidth()
             .height(BOTTOM_BAR_HEIGHT)
+            .shadow(elevation = 20.dp, shape = BottomBarShape)
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(topStartPercent = 40, topEndPercent = 40)
+                shape = BottomBarShape
             )
             .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.Center,
