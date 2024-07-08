@@ -48,7 +48,10 @@ fun WallmaticApp() {
 
         composable<Route.Album> { backStackEntry ->
             val album: Route.Album = backStackEntry.toRoute()
-            Album(albumId = album.albumId)
+            Album(
+                navController = navController,
+                albumId = album.albumId
+            )
         }
     }
 }

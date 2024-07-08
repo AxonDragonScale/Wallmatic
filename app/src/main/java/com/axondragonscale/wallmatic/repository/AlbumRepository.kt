@@ -79,4 +79,8 @@ class AlbumRepository @Inject constructor(
         return wallpaperIds.map { it.toInt() }
     }
 
+    suspend fun deleteAlbum(albumId: Int) {
+        albumDao.deleteAlbum(albumId)
+    }
+
 }

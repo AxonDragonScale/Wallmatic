@@ -6,11 +6,14 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,10 +24,16 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,15 +44,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.FullFolder
+import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
@@ -56,6 +69,7 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 @Composable
 fun Album(
     modifier: Modifier = Modifier,
+    navController: NavHostController,
     albumId: Int,
 ) {
     val vm: AlbumVM = hiltViewModel()
@@ -64,7 +78,12 @@ fun Album(
     Album(
         modifier = modifier,
         uiState = uiState,
-        onEvent = { vm.onEvent(it) },
+        onEvent = { event ->
+            vm.onEvent(event)
+
+            if (event is AlbumUiEvent.DeleteAlbum)
+                navController.popBackStack()
+        },
     )
 }
 
@@ -80,7 +99,11 @@ private fun Album(
         contentAlignment = Alignment.Center
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(albumName = uiState.album?.name ?: "")
+            TopBar(
+                albumName = uiState.album?.name ?: "",
+                onRename = { onEvent(AlbumUiEvent.RenameAlbum(it)) },
+                onDelete = { onEvent(AlbumUiEvent.DeleteAlbum) },
+            )
 
             LazyVerticalStaggeredGrid(
                 modifier = Modifier.fillMaxSize(),
@@ -113,33 +136,100 @@ private fun Album(
 private fun TopBar(
     modifier: Modifier = Modifier,
     albumName: String,
+    onRename: (String) -> Unit,
+    onDelete: () -> Unit,
 ) {
-    val window = (LocalView.current.context as Activity).window
-    val prevColor = remember { window.statusBarColor }
+    val view = LocalView.current
+    var prevColor = remember { 0 }
     val newColor = MaterialTheme.colorScheme.primaryContainer
-    DisposableEffect(Unit) {
-        window.statusBarColor = newColor.toArgb()
-        onDispose { window.statusBarColor = prevColor }
+    if (!view.isInEditMode) {
+        DisposableEffect(Unit) {
+            val window = (view.context as Activity).window
+            prevColor = window.statusBarColor
+            window.statusBarColor = newColor.toArgb()
+            onDispose { window.statusBarColor = prevColor }
+        }
     }
 
-    Column(
+    var showRenameAlbumDialog by remember { mutableStateOf(false) }
+    if (showRenameAlbumDialog) {
+        AlbumNameDialog(
+            currentAlbumName = albumName,
+            onDismiss = { showRenameAlbumDialog = false },
+            onConfirm = { newAlbumName ->
+                onRename(newAlbumName)
+                showRenameAlbumDialog = false
+            }
+        )
+    }
+
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.Center,
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "Album",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-        Text(
-            text = albumName,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "Album",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Text(
+                text = albumName,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Box(
+            modifier = Modifier.clip(CircleShape)
+        ) {
+            var isExpanded by remember { mutableStateOf(false) }
+            Icon(
+                modifier = Modifier
+                    .clickable { isExpanded = true }
+                    .padding(16.dp),
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+
+            MaterialTheme(
+                shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
+            ) {
+                DropdownMenu(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false },
+                    offset = DpOffset(x = -8.dp, y = 0.dp),
+                ) {
+                    DropdownMenuItem(
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp)),
+                        onClick = {
+                            showRenameAlbumDialog = true
+                            isExpanded = false
+                        },
+                        text = { Text("Rename") },
+                    )
+
+                    DropdownMenuItem(
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp)),
+                        onClick = {
+                            onDelete()
+                            isExpanded = false
+                        },
+                        text = { Text("Delete") },
+                    )
+                }
+            }
+        }
     }
 }
 
