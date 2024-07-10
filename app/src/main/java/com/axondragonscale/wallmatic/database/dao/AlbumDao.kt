@@ -32,6 +32,8 @@ interface AlbumDao {
     @Query("SELECT * FROM wallpaper WHERE id IN (:ids)")
     suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
 
+    @Query("SELECT * FROM wallpaper WHERE id = :id")
+    suspend fun getWallpaper(id: Int): Wallpaper
 
     // Upsert
 

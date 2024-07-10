@@ -56,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.FullFolder
+import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
@@ -79,10 +80,14 @@ fun Album(
         modifier = modifier,
         uiState = uiState,
         onEvent = { event ->
-            vm.onEvent(event)
+            when (event) {
+                is AlbumUiEvent.NavigateToWallpaper ->
+                    navController.navigate(Route.Wallpaper(event.wallpaperId))
+                is AlbumUiEvent.DeleteAlbum ->
+                    navController.popBackStack()
 
-            if (event is AlbumUiEvent.DeleteAlbum)
-                navController.popBackStack()
+                else -> vm.onEvent(event)
+            }
         },
     )
 }
@@ -114,12 +119,18 @@ private fun Album(
             ) {
                 for (folder in uiState.album!!.folders) {
                     item(span = StaggeredGridItemSpan.FullLine) {
-                        Folder(folder = folder)
+                        Folder(
+                            folder = folder,
+                            onWallpaperClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it)) }
+                        )
                     }
                 }
 
                 items(uiState.album.wallpapers) {
-                    Wallpaper(uri = it.uri)
+                    Wallpaper(
+                        uri = it.uri,
+                        onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) }
+                    )
                 }
             }
         }
@@ -237,6 +248,7 @@ private fun TopBar(
 private fun Folder(
     modifier: Modifier = Modifier,
     folder: FullFolder,
+    onWallpaperClick: (wallpaperId: Int) -> Unit,
 ) {
     Card(modifier = modifier) {
         Text(
@@ -257,6 +269,7 @@ private fun Folder(
             items(folder.wallpapers) {
                 Wallpaper(
                     uri = it.uri,
+                    onClick = { onWallpaperClick(it.id) },
                     cornerRadius = 8.dp,
                 )
             }

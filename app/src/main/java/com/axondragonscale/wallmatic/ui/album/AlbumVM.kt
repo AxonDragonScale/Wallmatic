@@ -33,11 +33,14 @@ internal class AlbumVM @Inject constructor(
         }
     }
 
-    fun onEvent(event: AlbumUiEvent) = when (event) {
+    fun onEvent(event: AlbumUiEvent): Any = when (event) {
         is AlbumUiEvent.FolderSelected -> onFolderSelected(event)
         is AlbumUiEvent.ImagesSelected -> onImagesSelected(event)
         is AlbumUiEvent.RenameAlbum -> onRenameAlbum(event)
         AlbumUiEvent.DeleteAlbum -> onDeleteAlbum()
+
+        // Handled by View
+        is AlbumUiEvent.NavigateToWallpaper -> Unit
     }
 
     private suspend fun syncUiStateWithAlbum() {

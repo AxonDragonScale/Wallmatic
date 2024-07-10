@@ -14,6 +14,7 @@ import androidx.navigation.toRoute
 import com.axondragonscale.wallmatic.ui.album.Album
 import com.axondragonscale.wallmatic.ui.bottombar.Tabs
 import com.axondragonscale.wallmatic.ui.dashboard.Dashboard
+import com.axondragonscale.wallmatic.ui.wallpaper.Wallpaper
 
 /**
  * Created by Ronak Harkhani on 06/06/24
@@ -52,6 +53,11 @@ fun WallmaticApp() {
                 navController = navController,
                 albumId = album.albumId
             )
+        }
+
+        composable<Route.Wallpaper> { backStackEntry ->
+            val wallpaper: Route.Wallpaper = backStackEntry.toRoute()
+            Wallpaper()
         }
     }
 }

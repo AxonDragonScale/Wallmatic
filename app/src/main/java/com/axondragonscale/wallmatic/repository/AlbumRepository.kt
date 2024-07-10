@@ -48,6 +48,10 @@ class AlbumRepository @Inject constructor(
         return albumDao.getWallpapers(wallpapers)
     }
 
+    suspend fun getWallpaper(wallpaperId: Int): Wallpaper {
+        return albumDao.getWallpaper(wallpaperId)
+    }
+
     fun getAlbums(): Flow<List<Album>> {
         return albumDao.getAlbums()
     }
