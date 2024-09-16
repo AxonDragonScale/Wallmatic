@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -186,6 +187,8 @@ private fun TopBar(
                 text = albumName,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -244,16 +247,19 @@ private fun Folder(
     onWallpaperClick: (wallpaperId: Int) -> Unit,
 ) {
     Card(modifier = modifier.clickable(onClick = onClick)) {
-        Text(
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp),
-            text = folder.name,
-            style = MaterialTheme.typography.labelLarge
-        )
-        Text(
-            modifier = Modifier.padding(start = 16.dp),
-            text = "${folder.wallpapers.size} wallpapers",
-            style = MaterialTheme.typography.labelSmall
-        )
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                modifier = Modifier.padding(top = 8.dp),
+                text = folder.name,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "${folder.wallpapers.size} wallpapers",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
         LazyRow(
             modifier = Modifier.height(300.dp),
             contentPadding = PaddingValues(8.dp),
