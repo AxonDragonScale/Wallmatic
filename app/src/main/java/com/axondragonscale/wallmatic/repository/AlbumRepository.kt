@@ -44,6 +44,10 @@ class AlbumRepository @Inject constructor(
             }
     }
 
+    suspend fun getFullFolder(folderId: Int): FullFolder {
+        return getFullFolders(listOf(folderId)).first()
+    }
+
     suspend fun getWallpapers(wallpapers: List<Int>): List<Wallpaper> {
         return albumDao.getWallpapers(wallpapers)
     }

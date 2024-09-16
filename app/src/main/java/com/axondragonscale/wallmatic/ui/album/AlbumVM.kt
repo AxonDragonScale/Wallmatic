@@ -41,11 +41,12 @@ internal class AlbumVM @Inject constructor(
 
         // Handled by View
         is AlbumUiEvent.NavigateToWallpaper -> Unit
+        is AlbumUiEvent.NavigateToFolder -> Unit
     }
 
     private suspend fun syncUiStateWithAlbum() {
         val album = repository.getFullAlbum(albumId)
-        uiState.update { it.copy(album = album, loading = false) }
+        uiState.update { it.copy(album = album) }
     }
 
     private fun onFolderSelected(

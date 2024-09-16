@@ -82,6 +82,8 @@ fun Album(
         uiState = uiState,
         onEvent = { event ->
             when (event) {
+                is AlbumUiEvent.NavigateToFolder ->
+                    navController.navigate(Route.Folder(event.folderId))
                 is AlbumUiEvent.NavigateToWallpaper ->
                     navController.navigate(Route.Wallpaper(event.wallpaperId))
                 is AlbumUiEvent.DeleteAlbum ->
@@ -99,14 +101,14 @@ private fun Album(
     uiState: AlbumUiState,
     onEvent: (AlbumUiEvent) -> Unit,
 ) {
-    if (uiState.loading) return
+    if (uiState.album == null) return
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(
-                albumName = uiState.album?.name ?: "",
+                albumName = uiState.album.name,
                 onRename = { onEvent(AlbumUiEvent.RenameAlbum(it)) },
                 onDelete = { onEvent(AlbumUiEvent.DeleteAlbum) },
             )
@@ -118,10 +120,11 @@ private fun Album(
                 verticalItemSpacing = 8.dp,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                for (folder in uiState.album!!.folders) {
+                for (folder in uiState.album.folders) {
                     item(span = StaggeredGridItemSpan.FullLine) {
                         Folder(
                             folder = folder,
+                            onClick = { onEvent(AlbumUiEvent.NavigateToFolder(folder.id)) },
                             onWallpaperClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it)) }
                         )
                     }
@@ -237,9 +240,10 @@ private fun TopBar(
 private fun Folder(
     modifier: Modifier = Modifier,
     folder: FullFolder,
+    onClick: () -> Unit,
     onWallpaperClick: (wallpaperId: Int) -> Unit,
 ) {
-    Card(modifier = modifier) {
+    Card(modifier = modifier.clickable(onClick = onClick)) {
         Text(
             modifier = Modifier.padding(start = 16.dp, top = 8.dp),
             text = folder.name,

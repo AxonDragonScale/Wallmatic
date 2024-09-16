@@ -15,6 +15,9 @@ object Route {
     data class Album(val albumId: Int)
 
     @Serializable
+    data class Folder(val folderId: Int)
+
+    @Serializable
     data class Wallpaper(val wallpaperId: Int)
 
 }

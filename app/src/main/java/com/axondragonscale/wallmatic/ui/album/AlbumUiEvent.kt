@@ -9,6 +9,7 @@ import android.net.Uri
 sealed interface AlbumUiEvent {
     data class FolderSelected(val context: Context, val uri: Uri) : AlbumUiEvent
     data class ImagesSelected(val context: Context, val uris: List<Uri>): AlbumUiEvent
+    data class NavigateToFolder(val folderId: Int): AlbumUiEvent
     data class NavigateToWallpaper(val wallpaperId: Int): AlbumUiEvent
     data class RenameAlbum(val albumName: String): AlbumUiEvent
     data object DeleteAlbum : AlbumUiEvent
