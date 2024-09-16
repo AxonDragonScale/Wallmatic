@@ -1,6 +1,5 @@
 package com.axondragonscale.wallmatic.ui.album
 
-import android.app.Activity
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,7 +36,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,9 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -61,6 +57,7 @@ import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
+import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -76,6 +73,10 @@ fun Album(
     val vm: AlbumVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
+    SystemBars(
+        statusBarColor = MaterialTheme.colorScheme.primaryContainer,
+        navBarColor = MaterialTheme.colorScheme.primaryContainer
+    )
     Album(
         modifier = modifier,
         uiState = uiState,
@@ -150,18 +151,6 @@ private fun TopBar(
     onRename: (String) -> Unit,
     onDelete: () -> Unit,
 ) {
-    val view = LocalView.current
-    var prevColor = remember { 0 }
-    val newColor = MaterialTheme.colorScheme.primaryContainer
-    if (!view.isInEditMode) {
-        DisposableEffect(Unit) {
-            val window = (view.context as Activity).window
-            prevColor = window.statusBarColor
-            window.statusBarColor = newColor.toArgb()
-            onDispose { window.statusBarColor = prevColor }
-        }
-    }
-
     var showRenameAlbumDialog by remember { mutableStateOf(false) }
     if (showRenameAlbumDialog) {
         AlbumNameDialog(

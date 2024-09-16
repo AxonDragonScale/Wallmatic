@@ -2,8 +2,7 @@ package com.axondragonscale.wallmatic.ui
 
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,14 +20,11 @@ import com.axondragonscale.wallmatic.ui.wallpaper.Wallpaper
  */
 
 @Composable
-fun WallmaticApp() {
+fun WallmaticApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     NavHost(
-        modifier = Modifier
-            .navigationBarsPadding()
-            .statusBarsPadding()
-            .background(MaterialTheme.colorScheme.background),
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
         navController = navController,
         startDestination = Route.Dashboard(),
         enterTransition = { slideIntoContainer(SlideDirection.Left) },
@@ -42,6 +38,7 @@ fun WallmaticApp() {
         composable<Route.Dashboard> { backStackEntry ->
             val dashboard: Route.Dashboard = backStackEntry.toRoute()
             Dashboard(
+                modifier = Modifier.systemBarsPadding(),
                 navController = navController,
                 tab = Tabs[dashboard.tab],
             )
@@ -50,6 +47,7 @@ fun WallmaticApp() {
         composable<Route.Album> { backStackEntry ->
             val album: Route.Album = backStackEntry.toRoute()
             Album(
+                modifier = Modifier.systemBarsPadding(),
                 navController = navController,
                 albumId = album.albumId
             )

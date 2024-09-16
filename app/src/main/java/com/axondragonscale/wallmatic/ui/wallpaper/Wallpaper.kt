@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -23,6 +24,7 @@ import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 fun Wallpaper(modifier: Modifier = Modifier) {
     val vm: WallpaperVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
+    SystemBars()
     Wallpaper(
         modifier = modifier,
         uiState = uiState,
@@ -40,7 +42,7 @@ private fun Wallpaper(
         modifier = modifier.fillMaxSize(),
         model = uiState.wallpaper.uri,
         contentDescription = null,
-        contentScale = ContentScale.Fit
+        contentScale = ContentScale.Crop
     )
 }
 

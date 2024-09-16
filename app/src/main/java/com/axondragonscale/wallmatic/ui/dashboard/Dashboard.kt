@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -15,6 +16,7 @@ import com.axondragonscale.wallmatic.ui.bottombar.Tab
 import com.axondragonscale.wallmatic.ui.bottombar.Tabs
 import com.axondragonscale.wallmatic.ui.home.Home
 import com.axondragonscale.wallmatic.ui.settings.Settings
+import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import kotlinx.coroutines.launch
 
 /**
@@ -27,6 +29,7 @@ fun Dashboard(
     navController: NavController,
     tab: Tab,
 ) {
+    SystemBars(navBarColor = MaterialTheme.colorScheme.primaryContainer)
     Box(modifier = modifier.fillMaxSize()) {
         val pagerState = rememberPagerState(
             initialPage = tab.position,
