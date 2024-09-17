@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -74,12 +76,9 @@ fun Album(
     val vm: AlbumVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-    SystemBars(
-        statusBarColor = MaterialTheme.colorScheme.primaryContainer,
-        navBarColor = MaterialTheme.colorScheme.primaryContainer
-    )
+    SystemBars(statusBarColor = MaterialTheme.colorScheme.primaryContainer)
     Album(
-        modifier = modifier,
+        modifier = modifier.statusBarsPadding(),
         uiState = uiState,
         onEvent = { event ->
             when (event) {
@@ -137,11 +136,16 @@ private fun Album(
                         onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) }
                     )
                 }
+
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    Spacer(modifier = Modifier.navigationBarsPadding())
+                }
             }
         }
 
         val context = LocalContext.current
         PickerButton(
+            modifier = Modifier.navigationBarsPadding(),
             onFolderSelected = { onEvent(AlbumUiEvent.FolderSelected(context, it)) },
             onImagesSelected = { onEvent(AlbumUiEvent.ImagesSelected(context, it)) },
         )

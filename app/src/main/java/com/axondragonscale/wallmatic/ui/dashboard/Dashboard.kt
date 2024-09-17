@@ -2,6 +2,7 @@ package com.axondragonscale.wallmatic.ui.dashboard
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +31,7 @@ fun Dashboard(
     tab: Tab,
 ) {
     SystemBars(navBarColor = MaterialTheme.colorScheme.primaryContainer)
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().systemBarsPadding()) {
         val pagerState = rememberPagerState(
             initialPage = tab.position,
             pageCount = { Tabs.size }

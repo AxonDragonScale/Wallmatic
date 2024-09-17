@@ -39,7 +39,6 @@ fun WallmaticApp(modifier: Modifier = Modifier) {
         composable<Route.Dashboard> { backStackEntry ->
             val dashboard: Route.Dashboard = backStackEntry.toRoute()
             Dashboard(
-                modifier = Modifier.systemBarsPadding(),
                 navController = navController,
                 tab = Tabs[dashboard.tab],
             )
@@ -48,7 +47,6 @@ fun WallmaticApp(modifier: Modifier = Modifier) {
         composable<Route.Album> { backStackEntry ->
             val album: Route.Album = backStackEntry.toRoute()
             Album(
-                modifier = Modifier.systemBarsPadding(),
                 navController = navController,
                 albumId = album.albumId,
             )
