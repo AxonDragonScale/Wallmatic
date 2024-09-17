@@ -19,7 +19,7 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class WallmaticActivity : ComponentActivity() {
 
     @Inject lateinit var appPrefsRepository: AppPrefsRepository
 
