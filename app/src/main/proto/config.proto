@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.axondragonscale.wallmatic.model";
+option java_multiple_files = true;
+
+message Config {
+  bool mirrorHomeConfigForLock = 1;
+  optional WallpaperConfig homeConfig = 2;
+  optional WallpaperConfig lockConfig = 3;
+}
+
+message WallpaperConfig {
+  int32 albumId = 1;
+}
