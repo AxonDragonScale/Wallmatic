@@ -16,13 +16,14 @@ fun Wallpaper(
     uri: String,
     onClick: (() -> Unit)? = null,
     cornerRadius: Dp = 16.dp,
+    contentScale: ContentScale = ContentScale.Fit,
 ) {
     AsyncImage(
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         model = uri,
-        contentScale = ContentScale.Crop,
+        contentScale = contentScale,
         contentDescription = "",
     )
 }

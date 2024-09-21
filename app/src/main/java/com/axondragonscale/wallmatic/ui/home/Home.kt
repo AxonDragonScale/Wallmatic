@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +53,7 @@ import androidx.navigation.NavController
 import com.axondragonscale.wallmatic.database.entity.Album
 import com.axondragonscale.wallmatic.model.Config
 import com.axondragonscale.wallmatic.model.WallpaperConfig
+import com.axondragonscale.wallmatic.model.TargetScreen
 import com.axondragonscale.wallmatic.model.config
 import com.axondragonscale.wallmatic.model.wallpaperConfig
 import com.axondragonscale.wallmatic.ui.Route
@@ -76,7 +78,9 @@ fun Home(
 ) {
     val vm: HomeVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
-    var showSelectAlbumBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var selectAlbumBottomSheetTarget by rememberSaveable {
+        mutableStateOf<TargetScreen?>(null)
+    }
 
     Home(
         modifier = modifier,
@@ -86,22 +90,24 @@ fun Home(
                 HomeUiEvent.CreateAlbumClick ->
                     navController.navigate(Route.Dashboard(tab = Tab.Albums.position))
 
-                HomeUiEvent.SelectAlbumClick ->
-                    showSelectAlbumBottomSheet = true
+                is HomeUiEvent.SelectAlbumClick ->
+                    selectAlbumBottomSheetTarget = event.target
 
                 else -> vm.onEvent(event)
             }
         }
     )
 
-    if (showSelectAlbumBottomSheet) {
+    if (selectAlbumBottomSheetTarget != null) {
         SelectAlbumBottomSheet(
             albums = uiState.albums,
             selectedAlbumId = uiState.config.let {
                 if (it.hasHomeConfig()) it.homeConfig.albumId else -1
             },
-            onSelectAlbum = { vm.onEvent(HomeUiEvent.SelectAlbum(it.id)) },
-            onDismiss = { showSelectAlbumBottomSheet = false },
+            onSelectAlbum = {
+                vm.onEvent(HomeUiEvent.SelectAlbum(it.id, selectAlbumBottomSheetTarget!!))
+            },
+            onDismiss = { selectAlbumBottomSheetTarget = null },
         )
     }
 }
@@ -124,7 +130,7 @@ private fun Home(
         )
 
         if (uiState.isLoading) {
-
+            Text("TODO: Loading")
         } else {
             when {
                 uiState.albums.isEmpty() ->
@@ -148,20 +154,22 @@ private fun Home(
                         """.trimIndent(),
                         buttonText = "SELECT ALBUM",
                         buttonIcon = Icons.Outlined.CheckCircle,
-                        onClick = { onEvent(HomeUiEvent.SelectAlbumClick) }
+                        onClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Both)) }
                     )
 
                 else -> {
                     HomeScreenCard(
                         modifier = Modifier.padding(vertical = 8.dp),
                         homeConfig = uiState.config.homeConfig,
-                        homeAlbum = uiState.homeAlbum!!
+                        homeAlbum = uiState.homeAlbum!!,
+                        onEvent = onEvent,
                     )
 
                     LockScreenCard(
                         modifier = Modifier.padding(vertical = 8.dp),
                         config = uiState.config,
-                        lockAlbum = uiState.lockAlbum
+                        lockAlbum = uiState.lockAlbum,
+                        onEvent = onEvent,
                     )
                 }
             }
@@ -226,6 +234,7 @@ private fun HomeScreenCard(
     modifier: Modifier = Modifier,
     homeConfig: WallpaperConfig,
     homeAlbum: Album,
+    onEvent: (HomeUiEvent) -> Unit,
 ) = Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(12.dp),
@@ -241,42 +250,12 @@ private fun HomeScreenCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            WallpaperThumbnail(uri = homeAlbum.coverUri)
-
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(horizontal = 12.dp)
-            ) {
-                Text(
-                    text = homeAlbum.name,
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
-                    text = homeAlbum.countSummary(),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Switch(
-                checked = true,
-                onCheckedChange = {}
-            )
-        }
+        AlbumConfigCard(
+            album = homeAlbum,
+            autoCycleEnabled = homeConfig.autoCycleEnabled,
+            onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home)) },
+            onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggle(it, TargetScreen.Home)) },
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -289,6 +268,7 @@ private fun LockScreenCard(
     modifier: Modifier = Modifier,
     config: Config,
     lockAlbum: Album?,
+    onEvent: (HomeUiEvent) -> Unit,
 ) = Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(12.dp),
@@ -306,12 +286,23 @@ private fun LockScreenCard(
 
         MirrorHomeScreenCard(
             mirrorHomeConfigForLock = config.mirrorHomeConfigForLock,
-            onToggle = { },
+            onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggle) },
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        if (!config.mirrorHomeConfigForLock && lockAlbum != null) {
+            Spacer(modifier = Modifier.height(8.dp))
 
-        WallpaperPreviewCard()
+            AlbumConfigCard(
+                album = lockAlbum,
+                autoCycleEnabled = config.lockConfig.autoCycleEnabled,
+                onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
+                onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggle(it, TargetScreen.Lock)) },
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            WallpaperPreviewCard()
+        }
     }
 }
 
@@ -350,7 +341,60 @@ private fun MirrorHomeScreenCard(
 }
 
 @Composable
-fun WallpaperPreviewCard(
+private fun AlbumConfigCard(
+    modifier: Modifier = Modifier,
+    album: Album,
+    autoCycleEnabled: Boolean,
+    onSelectAlbumClick: () -> Unit,
+    onAutoCycleToggle: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { onSelectAlbumClick() },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            WallpaperThumbnail(uri = album.coverUri)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 12.dp)
+            ) {
+                Text(
+                    text = album.name,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Text(
+                    text = album.countSummary(),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+        Switch(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            checked = autoCycleEnabled,
+            onCheckedChange = onAutoCycleToggle
+        )
+    }
+}
+
+@Composable
+private fun WallpaperPreviewCard(
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -360,6 +404,7 @@ fun WallpaperPreviewCard(
             .padding(8.dp),
         verticalAlignment = Alignment.Top,
     ) {
+        // TODO: Navigate to Wallpaper on click
         Wallpaper(
             modifier = Modifier
                 .fillMaxWidth(0.45f)
@@ -367,12 +412,13 @@ fun WallpaperPreviewCard(
                 .border(2.dp, Color.Black, RoundedCornerShape(12.dp)),
             uri = "",
             cornerRadius = 12.dp,
+            contentScale = ContentScale.Crop,
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(start = 8.dp, top = 8.dp)
         ) {
             WallpaperInfo(
                 icon = Icons.Outlined.RemoveFromQueue,
@@ -411,14 +457,14 @@ fun WallpaperInfo(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-    )  {
+    ) {
         Icon(
             modifier = Modifier.padding(8.dp),
             imageVector = icon,
             contentDescription = null,
         )
 
-        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+        Column(modifier = Modifier.padding(start = 8.dp)) {
             Text(
                 text = title,
                 fontWeight = FontWeight.SemiBold,
@@ -481,10 +527,13 @@ private fun Preview() {
                     isLoading = false,
                     albums = listOf(Album(name = "Album 1").apply { id = 1 }),
                     config = config {
-                        mirrorHomeConfigForLock = false
+                        mirrorHomeConfigForLock = true
                         homeConfig = wallpaperConfig {
                             albumId = 1
                         }
+//                        lockConfig = wallpaperConfig {
+//                            albumId = 1
+//                        }
                     }
                 )
             }

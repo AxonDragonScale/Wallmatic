@@ -12,3 +12,6 @@ fun Album.countSummary() =
 
 private fun Album.isPluralFolders() = folderIds.size != 1
 private fun Album.isPluralWallpapers() = wallpaperIds.size != 1
+
+fun Album.hasWallpapers() =
+    folderIds.isNotEmpty() || wallpaperIds.isNotEmpty()

@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -28,7 +29,8 @@ fun WallpaperThumbnail(
         Wallpaper(
             modifier = modifier.size(size),
             uri = uri,
-            cornerRadius = cornerRadius
+            cornerRadius = cornerRadius,
+            contentScale = ContentScale.Crop,
         )
     else
         Box(

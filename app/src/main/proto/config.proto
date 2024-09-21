@@ -11,4 +11,5 @@ message Config {
 
 message WallpaperConfig {
   int32 albumId = 1;
+  bool autoCycleEnabled = 2;
 }

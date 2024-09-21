@@ -2,6 +2,7 @@ package com.axondragonscale.wallmatic.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.axondragonscale.wallmatic.model.TargetScreen
 import com.axondragonscale.wallmatic.model.copy
 import com.axondragonscale.wallmatic.repository.AlbumRepository
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
@@ -46,13 +47,41 @@ class HomeVM @Inject constructor(
         when (event) {
             is HomeUiEvent.SelectAlbum -> appPrefsRepository.setConfig(
                 uiState.value.config.copy {
-                    homeConfig = homeConfig.copy { albumId = event.albumId }
+                    if (event.target == TargetScreen.Home || event.target == TargetScreen.Both)
+                        homeConfig = homeConfig.copy {
+                            albumId = event.albumId
+                            autoCycleEnabled = true
+                        }
+                    if (event.target == TargetScreen.Lock || event.target == TargetScreen.Both)
+                        lockConfig = lockConfig.copy {
+                            albumId = event.albumId
+                            autoCycleEnabled = true
+                        }
+                }
+            )
+
+            is HomeUiEvent.AutoCycleToggle -> appPrefsRepository.setConfig(
+                uiState.value.config.copy {
+                    if (event.target == TargetScreen.Home || event.target == TargetScreen.Both)
+                        homeConfig = homeConfig.copy {
+                            autoCycleEnabled = event.enabled
+                        }
+                    if (event.target == TargetScreen.Lock || event.target == TargetScreen.Both)
+                        lockConfig = lockConfig.copy {
+                            autoCycleEnabled = event.enabled
+                        }
+                }
+            )
+
+            HomeUiEvent.MirrorHomeConfigForLockToggle -> appPrefsRepository.setConfig(
+                uiState.value.config.copy {
+                    mirrorHomeConfigForLock = !mirrorHomeConfigForLock
                 }
             )
 
             // Handled in Compose
             HomeUiEvent.CreateAlbumClick -> Unit
-            HomeUiEvent.SelectAlbumClick -> Unit
+            is HomeUiEvent.SelectAlbumClick -> Unit
         }
     }
 }
