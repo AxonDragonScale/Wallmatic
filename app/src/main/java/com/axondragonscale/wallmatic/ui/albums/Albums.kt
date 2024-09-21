@@ -44,7 +44,7 @@ import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
-import com.axondragonscale.wallmatic.ui.common.collectWithLifecycle
+import com.axondragonscale.wallmatic.ui.util.collectWithLifecycle
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**

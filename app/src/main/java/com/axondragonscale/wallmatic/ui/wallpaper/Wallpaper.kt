@@ -52,7 +52,12 @@ private fun Wallpaper(
 private fun PreviewLoading() {
     WallmaticTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-            Wallpaper()
+            Wallpaper(
+                uiState = WallpaperUiState(
+                    com.axondragonscale.wallmatic.database.entity.Wallpaper(uri = "")
+                ),
+                onEvent = { }
+            )
         }
     }
 }

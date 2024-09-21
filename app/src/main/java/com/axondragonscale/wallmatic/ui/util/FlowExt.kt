@@ -1,4 +1,4 @@
-package com.axondragonscale.wallmatic.ui.common
+package com.axondragonscale.wallmatic.ui.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

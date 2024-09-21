@@ -40,7 +40,7 @@ fun Dashboard(
 
         HorizontalPager(state = pagerState) { position ->
             when (position) {
-                Tab.Home.position -> Home()
+                Tab.Home.position -> Home(navController = navController)
                 Tab.Albums.position -> Albums(navController = navController)
                 Tab.Settings.position -> Settings()
             }
