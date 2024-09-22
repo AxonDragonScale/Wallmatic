@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axondragonscale.wallmatic.database.entity.Wallpaper
-import com.axondragonscale.wallmatic.repository.AlbumRepository
+import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class WallpaperVM @Inject constructor(
-    private val repository: AlbumRepository,
+    private val repository: WallmaticRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

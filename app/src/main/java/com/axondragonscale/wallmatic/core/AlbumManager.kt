@@ -6,7 +6,7 @@ import com.axondragonscale.wallmatic.database.entity.Folder
 import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.getAllWallpapers
-import com.axondragonscale.wallmatic.repository.AlbumRepository
+import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.FileUtil
 import com.axondragonscale.wallmatic.util.takePersistableUriPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class AlbumManager @Inject constructor(
     @ApplicationContext val context: Context,
-    private val repository: AlbumRepository,
+    private val repository: WallmaticRepository,
 ) {
 
     fun forAlbum(album: FullAlbum) = SpecificAlbumManager(album)
@@ -60,6 +60,7 @@ class AlbumManager @Inject constructor(
         suspend fun addWallpapers(uris: List<Uri>) {
             uris.forEach { uri -> context.takePersistableUriPermission(uri) }
 
+            // TODO: Verify
             // Make sure existing wallpapers are not re-added
             val existingWallpaperUris = album.getAllWallpapers().map { it.uri }
             val newWallpapers = uris.filter { it.toString() !in existingWallpaperUris }

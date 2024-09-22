@@ -3,7 +3,7 @@ package com.axondragonscale.wallmatic.ui.albums
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axondragonscale.wallmatic.database.entity.Album
-import com.axondragonscale.wallmatic.repository.AlbumRepository
+import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -18,8 +18,8 @@ import javax.inject.Inject
  * Created by Ronak Harkhani on 23/06/24
  */
 @HiltViewModel
-internal class AlbumsVM @Inject constructor(
-    private val repository: AlbumRepository,
+class AlbumsVM @Inject constructor(
+    private val repository: WallmaticRepository,
 ): ViewModel() {
 
     val uiState = MutableStateFlow(AlbumsUiState())

@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axondragonscale.wallmatic.core.AlbumManager
-import com.axondragonscale.wallmatic.repository.AlbumRepository
+import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class AlbumVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: AlbumRepository,
+    private val repository: WallmaticRepository,
     private val albumManager: AlbumManager,
 ) : ViewModel() {
 

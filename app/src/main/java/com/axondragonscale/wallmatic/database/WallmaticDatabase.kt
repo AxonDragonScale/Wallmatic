@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.axondragonscale.wallmatic.database.WallmaticDatabase.Companion.DB_VERSION
 import com.axondragonscale.wallmatic.database.converter.IntListConverter
 import com.axondragonscale.wallmatic.database.converter.StringListConverter
-import com.axondragonscale.wallmatic.database.dao.AlbumDao
+import com.axondragonscale.wallmatic.database.dao.WallmaticDao
 import com.axondragonscale.wallmatic.database.entity.Album
 import com.axondragonscale.wallmatic.database.entity.Folder
 import com.axondragonscale.wallmatic.database.entity.Wallpaper
@@ -46,6 +46,6 @@ abstract class WallmaticDatabase : RoomDatabase() {
             ).build()
     }
 
-    abstract fun albumDao(): AlbumDao
+    abstract fun albumDao(): WallmaticDao
 
 }

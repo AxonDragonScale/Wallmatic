@@ -2,9 +2,8 @@ package com.axondragonscale.wallmatic.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.axondragonscale.wallmatic.model.TargetScreen
 import com.axondragonscale.wallmatic.model.copy
-import com.axondragonscale.wallmatic.repository.AlbumRepository
+import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.util.collect
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +19,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeVM @Inject constructor(
-    private val albumRepository: AlbumRepository,
+    private val wallmaticRepository: WallmaticRepository,
     private val appPrefsRepository: AppPrefsRepository,
 ) : ViewModel() {
 
@@ -30,7 +29,7 @@ class HomeVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             combine(
                 appPrefsRepository.configFlow,
-                albumRepository.getAlbums()
+                wallmaticRepository.getAlbums()
             ) { config, albums ->
                 uiState.update {
                     it.copy(

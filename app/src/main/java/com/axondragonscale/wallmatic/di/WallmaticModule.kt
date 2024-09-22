@@ -2,7 +2,7 @@ package com.axondragonscale.wallmatic.di
 
 import android.content.Context
 import com.axondragonscale.wallmatic.database.WallmaticDatabase
-import com.axondragonscale.wallmatic.database.dao.AlbumDao
+import com.axondragonscale.wallmatic.database.dao.WallmaticDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +24,7 @@ object WallmaticModule {
 
     @Provides
     @Singleton
-    fun provideAlbumDao(db: WallmaticDatabase): AlbumDao =
+    fun provideAlbumDao(db: WallmaticDatabase): WallmaticDao =
         db.albumDao()
 
 }

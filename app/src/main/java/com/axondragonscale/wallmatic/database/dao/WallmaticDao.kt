@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
  * Created by Ronak Harkhani on 26/06/24
  */
 @Dao
-interface AlbumDao {
+interface WallmaticDao {
 
     // Get
 
