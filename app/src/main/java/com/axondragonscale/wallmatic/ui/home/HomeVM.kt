@@ -47,12 +47,12 @@ class HomeVM @Inject constructor(
         when (event) {
             is HomeUiEvent.SelectAlbum -> appPrefsRepository.setConfig(
                 uiState.value.config.copy {
-                    if (event.target == TargetScreen.Home || event.target == TargetScreen.Both)
+                    if (event.target.isHome())
                         homeConfig = homeConfig.copy {
                             albumId = event.albumId
                             autoCycleEnabled = true
                         }
-                    if (event.target == TargetScreen.Lock || event.target == TargetScreen.Both)
+                    if (event.target.isLock())
                         lockConfig = lockConfig.copy {
                             albumId = event.albumId
                             autoCycleEnabled = true
@@ -62,11 +62,11 @@ class HomeVM @Inject constructor(
 
             is HomeUiEvent.AutoCycleToggle -> appPrefsRepository.setConfig(
                 uiState.value.config.copy {
-                    if (event.target == TargetScreen.Home || event.target == TargetScreen.Both)
+                    if (event.target.isHome())
                         homeConfig = homeConfig.copy {
                             autoCycleEnabled = event.enabled
                         }
-                    if (event.target == TargetScreen.Lock || event.target == TargetScreen.Both)
+                    if (event.target.isLock())
                         lockConfig = lockConfig.copy {
                             autoCycleEnabled = event.enabled
                         }

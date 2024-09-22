@@ -484,8 +484,8 @@ fun IntervalSliderCard(modifier: Modifier = Modifier) {
 }
 
 
-//@Preview(name = "Light Mode", showBackground = true)
-//@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Light Mode", showBackground = true)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewCreateAlbum() {
     WallmaticTheme {
@@ -499,8 +499,8 @@ private fun PreviewCreateAlbum() {
     }
 }
 
-//@Preview(name = "Light Mode", showBackground = true)
-//@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Light Mode", showBackground = true)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewSelectAlbum() {
     WallmaticTheme {

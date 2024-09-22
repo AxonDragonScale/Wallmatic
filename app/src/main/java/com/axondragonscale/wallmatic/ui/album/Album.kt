@@ -144,11 +144,10 @@ private fun Album(
             }
         }
 
-        val context = LocalContext.current
         PickerButton(
             modifier = Modifier.navigationBarsPadding(),
-            onFolderSelected = { onEvent(AlbumUiEvent.FolderSelected(context, it)) },
-            onImagesSelected = { onEvent(AlbumUiEvent.ImagesSelected(context, it)) },
+            onFolderSelected = { onEvent(AlbumUiEvent.FolderSelected(it)) },
+            onImagesSelected = { onEvent(AlbumUiEvent.ImagesSelected(it)) },
         )
     }
 }

@@ -6,5 +6,8 @@ package com.axondragonscale.wallmatic.model
 enum class TargetScreen {
     Home,
     Lock,
-    Both,
+    Both;
+
+    fun isHome() = this == Home || this == Both
+    fun isLock() = this == Lock || this == Both
 }

@@ -30,9 +30,9 @@ class AlbumRepository @Inject constructor(
         )
     }
 
-    suspend fun getFullFolders(folders: List<Int>): List<FullFolder> {
+    suspend fun getFullFolders(folderIds: List<Int>): List<FullFolder> {
         return albumDao
-            .getFolders(folders)
+            .getFolders(folderIds)
             .map { folder ->
                 FullFolder(
                     id = folder.id,
@@ -48,8 +48,8 @@ class AlbumRepository @Inject constructor(
         return getFullFolders(listOf(folderId)).first()
     }
 
-    suspend fun getWallpapers(wallpapers: List<Int>): List<Wallpaper> {
-        return albumDao.getWallpapers(wallpapers)
+    suspend fun getWallpapers(wallpaperIds: List<Int>): List<Wallpaper> {
+        return albumDao.getWallpapers(wallpaperIds)
     }
 
     suspend fun getWallpaper(wallpaperId: Int): Wallpaper {

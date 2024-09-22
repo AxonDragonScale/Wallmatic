@@ -13,4 +13,7 @@ data class FullAlbum(
     val wallpapers: List<Wallpaper>,
 )
 
+fun FullAlbum.getAllWallpapers() =
+    wallpapers + folders.flatMap { it.wallpapers }
+
 
