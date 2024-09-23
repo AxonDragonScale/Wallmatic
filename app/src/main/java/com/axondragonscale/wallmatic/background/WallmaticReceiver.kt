@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * This receiver is intended to reschedule wallpaper changes when:
@@ -14,8 +15,16 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class WallmaticReceiver : BroadcastReceiver() {
 
-    override fun onReceive(context: Context, intent: Intent) {
+    @Inject lateinit var scheduler: WallmaticScheduler
 
+    override fun onReceive(context: Context, intent: Intent) {
+        if (
+            intent.action == Intent.ACTION_BOOT_COMPLETED
+            || intent.action == Intent.ACTION_TIME_CHANGED
+            || intent.action == Intent.ACTION_TIMEZONE_CHANGED
+        ) {
+            // TODO: Schedule the next wallpaper change
+        }
     }
 
 }

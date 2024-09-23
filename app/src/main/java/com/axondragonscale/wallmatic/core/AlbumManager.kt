@@ -75,5 +75,11 @@ class AlbumManager @Inject constructor(
 
     }
 
+    // TODO: Sync Albums (Wallpaper + Folder) with file system
+    // TODO: Also update config if current album/folder/wallpaper doesn't exist anymore
+    suspend fun refreshAlbums() {
+
+    }
+
 
 }

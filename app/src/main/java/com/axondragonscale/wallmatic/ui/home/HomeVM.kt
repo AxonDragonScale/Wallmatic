@@ -2,7 +2,9 @@ package com.axondragonscale.wallmatic.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.axondragonscale.wallmatic.model.config
 import com.axondragonscale.wallmatic.model.copy
+import com.axondragonscale.wallmatic.model.wallpaperConfig
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.util.collect
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Created by Ronak Harkhani on 22/06/24
@@ -45,17 +48,33 @@ class HomeVM @Inject constructor(
     fun onEvent(event: HomeUiEvent) = viewModelScope.launch {
         when (event) {
             is HomeUiEvent.SelectAlbum -> appPrefsRepository.setConfig(
-                uiState.value.config.copy {
-                    if (event.target.isHome())
-                        homeConfig = homeConfig.copy {
+                if (!uiState.value.config.isInit) {
+                    // First time initialization
+                    config {
+                        isInit = true
+                        mirrorHomeConfigForLock = true
+                        homeConfig = wallpaperConfig {
                             albumId = event.albumId
                             autoCycleEnabled = true
+                            currentWallpaperId = -1 // TODO: Randomly choose a wallpaper from album. Use id here and do async wallpaper set
+                            updateInterval = 15.minutes.inWholeMilliseconds
+                            lastUpdated = System.currentTimeMillis()
                         }
-                    if (event.target.isLock())
-                        lockConfig = lockConfig.copy {
-                            albumId = event.albumId
-                            autoCycleEnabled = true
-                        }
+                        lockConfig = homeConfig // TODO: Verify this works
+                    }
+                } else {
+                    uiState.value.config.copy {
+                        if (event.target.isHome())
+                            homeConfig = homeConfig.copy {
+                                albumId = event.albumId
+                                autoCycleEnabled = true
+                            }
+                        if (event.target.isLock())
+                            lockConfig = lockConfig.copy {
+                                albumId = event.albumId
+                                autoCycleEnabled = true
+                            }
+                    }
                 }
             )
 
