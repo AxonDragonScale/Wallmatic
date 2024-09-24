@@ -289,19 +289,28 @@ private fun LockScreenCard(
             onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggle) },
         )
 
-        if (!config.mirrorHomeConfigForLock && lockAlbum != null) {
-            Spacer(modifier = Modifier.height(8.dp))
+        // TODO: Extract this out
+        // Maybe the preview and the other (future) controls should also be hidden
+        // when autoCycle is disabled
+        AnimatedVisibility(
+            visible = !config.mirrorHomeConfigForLock && lockAlbum != null,
+            enter = expandVertically(tween()) + fadeIn(tween(delayMillis = 300)),
+            exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
+        ) {
+            Column {
+                Spacer(modifier = Modifier.height(8.dp))
 
-            AlbumConfigCard(
-                album = lockAlbum,
-                autoCycleEnabled = config.lockConfig.autoCycleEnabled,
-                onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
-                onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggle(it, TargetScreen.Lock)) },
-            )
+                AlbumConfigCard(
+                    album = lockAlbum!!,
+                    autoCycleEnabled = config.lockConfig.autoCycleEnabled,
+                    onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
+                    onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggle(it, TargetScreen.Lock)) },
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            WallpaperPreviewCard()
+                WallpaperPreviewCard()
+            }
         }
     }
 }
@@ -527,13 +536,13 @@ private fun Preview() {
                     isLoading = false,
                     albums = listOf(Album(name = "Album 1").apply { id = 1 }),
                     config = config {
-                        mirrorHomeConfigForLock = true
+                        mirrorHomeConfigForLock = false
                         homeConfig = wallpaperConfig {
                             albumId = 1
                         }
-//                        lockConfig = wallpaperConfig {
-//                            albumId = 1
-//                        }
+                        lockConfig = wallpaperConfig {
+                            albumId = 1
+                        }
                     }
                 )
             }
