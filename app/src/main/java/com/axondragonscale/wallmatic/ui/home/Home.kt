@@ -8,14 +8,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,9 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,9 +54,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.axondragonscale.wallmatic.database.entity.Album
-import com.axondragonscale.wallmatic.model.Config
-import com.axondragonscale.wallmatic.model.WallpaperConfig
+import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import com.axondragonscale.wallmatic.model.TargetScreen
+import com.axondragonscale.wallmatic.model.WallpaperConfig
 import com.axondragonscale.wallmatic.model.config
 import com.axondragonscale.wallmatic.model.wallpaperConfig
 import com.axondragonscale.wallmatic.ui.Route
@@ -68,12 +64,11 @@ import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.bottombar.Tab
 import com.axondragonscale.wallmatic.ui.common.SelectAlbumBottomSheet
 import com.axondragonscale.wallmatic.ui.common.TabHeader
-import com.axondragonscale.wallmatic.ui.common.Wallpaper
+import com.axondragonscale.wallmatic.ui.common.WallpaperPreview
 import com.axondragonscale.wallmatic.ui.common.WallpaperThumbnail
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
-import com.axondragonscale.wallmatic.ui.util.performLongPressHapticFeedback
 import com.axondragonscale.wallmatic.ui.util.countSummary
-import com.axondragonscale.wallmatic.ui.util.getAspectRatio
+import com.axondragonscale.wallmatic.ui.util.performLongPressHapticFeedback
 
 /**
  * Created by Ronak Harkhani on 06/06/24
@@ -100,6 +95,9 @@ fun Home(
 
                 is HomeUiEvent.SelectAlbumClick ->
                     selectAlbumBottomSheetTarget = event.target
+
+                is HomeUiEvent.NavigateToWallpaper ->
+                    navController.navigate(Route.Wallpaper(event.wallpaperId))
 
                 else -> vm.onEvent(event)
             }
@@ -168,15 +166,13 @@ private fun Home(
                 else -> {
                     HomeScreenCard(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        homeConfig = uiState.config.homeConfig,
-                        homeAlbum = uiState.homeAlbum!!,
+                        uiState = uiState,
                         onEvent = onEvent,
                     )
 
                     LockScreenCard(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        config = uiState.config,
-                        lockAlbum = uiState.lockAlbum,
+                        uiState = uiState,
                         onEvent = onEvent,
                     )
                 }
@@ -240,8 +236,7 @@ private fun TextAndButton(
 @Composable
 private fun HomeScreenCard(
     modifier: Modifier = Modifier,
-    homeConfig: WallpaperConfig,
-    homeAlbum: Album,
+    uiState: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
 ) = Card(
     modifier = modifier.fillMaxWidth(),
@@ -259,8 +254,8 @@ private fun HomeScreenCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         AlbumConfigCard(
-            album = homeAlbum,
-            autoCycleEnabled = homeConfig.autoCycleEnabled,
+            album = uiState.homeAlbum!!,
+            autoCycleEnabled = uiState.config.homeConfig.autoCycleEnabled,
             onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home)) },
             onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Home)) },
         )
@@ -268,6 +263,9 @@ private fun HomeScreenCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         WallpaperPreviewCard(
+            wallpaper = uiState.homeWallpaper,
+            wallpaperConfig = uiState.config.homeConfig,
+            onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
             onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Home)) }
         )
     }
@@ -276,8 +274,7 @@ private fun HomeScreenCard(
 @Composable
 private fun LockScreenCard(
     modifier: Modifier = Modifier,
-    config: Config,
-    lockAlbum: Album?,
+    uiState: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
 ) = Card(
     modifier = modifier.fillMaxWidth(),
@@ -295,7 +292,7 @@ private fun LockScreenCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         MirrorHomeScreenCard(
-            mirrorHomeConfigForLock = config.mirrorHomeConfigForLock,
+            mirrorHomeConfigForLock = uiState.config.mirrorHomeConfigForLock,
             onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggled) },
         )
 
@@ -303,7 +300,7 @@ private fun LockScreenCard(
         // Maybe the preview and the other (future) controls should also be hidden
         // when autoCycle is disabled
         AnimatedVisibility(
-            visible = !config.mirrorHomeConfigForLock && lockAlbum != null,
+            visible = !uiState.config.mirrorHomeConfigForLock && uiState.lockAlbum != null,
             enter = expandVertically(tween()) + fadeIn(tween(delayMillis = 300)),
             exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
         ) {
@@ -311,8 +308,8 @@ private fun LockScreenCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 AlbumConfigCard(
-                    album = lockAlbum!!,
-                    autoCycleEnabled = config.lockConfig.autoCycleEnabled,
+                    album = uiState.lockAlbum!!,
+                    autoCycleEnabled = uiState.config.lockConfig.autoCycleEnabled,
                     onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
                     onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Lock)) },
                 )
@@ -320,6 +317,9 @@ private fun LockScreenCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 WallpaperPreviewCard(
+                    wallpaper = uiState.lockWallpaper,
+                    wallpaperConfig = uiState.config.lockConfig,
+                    onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
                     onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Lock)) }
                 )
             }
@@ -417,6 +417,9 @@ private fun AlbumConfigCard(
 @Composable
 private fun WallpaperPreviewCard(
     modifier: Modifier = Modifier,
+    wallpaper: Wallpaper?,
+    wallpaperConfig: WallpaperConfig,
+    onWallpaperClick: (Int) -> Unit,
     onChangeWallpaperClick: () -> Unit,
 ) {
     Row(
@@ -427,14 +430,14 @@ private fun WallpaperPreviewCard(
         verticalAlignment = Alignment.Top,
     ) {
         // TODO: Navigate to Wallpaper on click
-        Wallpaper(
+        WallpaperPreview(
             modifier = Modifier
-                .fillMaxWidth(0.45f)
-                .aspectRatio(getAspectRatio())
-                .border(2.dp, Color.Black, RoundedCornerShape(12.dp)),
-            uri = "",
-            cornerRadius = 12.dp,
-            contentScale = ContentScale.Crop,
+                .padding(start = 8.dp)
+                .fillMaxWidth(0.4f)
+                .clickable(enabled = wallpaper?.uri != null) {
+                    wallpaper?.let { onWallpaperClick(it.id) }
+                },
+            uri = wallpaper?.uri
         )
 
         Column(

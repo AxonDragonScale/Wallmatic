@@ -6,9 +6,11 @@ import com.axondragonscale.wallmatic.core.WallpaperUpdater
 import com.axondragonscale.wallmatic.model.config
 import com.axondragonscale.wallmatic.model.copy
 import com.axondragonscale.wallmatic.model.wallpaperConfig
-import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
+import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.collect
+import com.axondragonscale.wallmatic.util.homeConfig
+import com.axondragonscale.wallmatic.util.lockConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,11 +38,21 @@ class HomeVM @Inject constructor(
                 appPrefsRepository.configFlow,
                 wallmaticRepository.getAlbums()
             ) { config, albums ->
+                val homeWallpaper = config.homeConfig.currentWallpaperId
+                    .takeIf { it != -1 }
+                    ?.let { wallmaticRepository.getWallpaper(it) }
+
+                val lockWallpaper = config.lockConfig.currentWallpaperId
+                    .takeIf { it != -1 }
+                    ?.let { wallmaticRepository.getWallpaper(it) }
+
                 uiState.update {
                     it.copy(
                         isLoading = false,
                         config = config,
                         albums = albums,
+                        homeWallpaper = homeWallpaper,
+                        lockWallpaper = lockWallpaper
                     )
                 }
             }.collect()
@@ -57,6 +69,7 @@ class HomeVM @Inject constructor(
             // Handled in Compose
             HomeUiEvent.CreateAlbumClick -> Unit
             is HomeUiEvent.SelectAlbumClick -> Unit
+            is HomeUiEvent.NavigateToWallpaper -> Unit
         }
     }
 
@@ -72,47 +85,30 @@ class HomeVM @Inject constructor(
                         autoCycleEnabled = true
                         currentWallpaperId = -1 // TODO: Randomly choose a wallpaper from album. Use id here and do async wallpaper set
                         updateInterval = 15.minutes.inWholeMilliseconds
-                        lastUpdated = System.currentTimeMillis()
+                        lastUpdated = -1
                     }
                     lockConfig = homeConfig // TODO: Verify this works
                 }
             } else {
-                uiState.value.config.copy {
-                    if (event.target.isHome())
-                        homeConfig = homeConfig.copy {
-                            albumId = event.albumId
-                            autoCycleEnabled = true
-                        }
-                    if (event.target.isLock())
-                        lockConfig = lockConfig.copy {
-                            albumId = event.albumId
-                            autoCycleEnabled = true
-                        }
-                }
+                uiState.value.config
+                    .homeConfig { if (event.target.isHome()) albumId = event.albumId }
+                    .lockConfig { if (event.target.isLock()) albumId = event.albumId }
             }
         )
+        wallpaperUpdater.updateWallpaper(event.target)
     }
 
     private suspend fun onAutoCycleToggled(event: HomeUiEvent.AutoCycleToggled) {
         appPrefsRepository.setConfig(
-            uiState.value.config.copy {
-                if (event.target.isHome())
-                    homeConfig = homeConfig.copy {
-                        autoCycleEnabled = event.enabled
-                    }
-                if (event.target.isLock())
-                    lockConfig = lockConfig.copy {
-                        autoCycleEnabled = event.enabled
-                    }
-            }
+            uiState.value.config
+                .homeConfig { if (event.target.isHome()) autoCycleEnabled = event.enabled }
+                .lockConfig { if (event.target.isLock()) autoCycleEnabled = event.enabled }
         )
     }
 
     private suspend fun onMirrorHomeConfigForLockToggled() {
         appPrefsRepository.setConfig(
-            uiState.value.config.copy {
-                mirrorHomeConfigForLock = !mirrorHomeConfigForLock
-            }
+            uiState.value.config.copy { mirrorHomeConfigForLock = !mirrorHomeConfigForLock }
         )
     }
 }

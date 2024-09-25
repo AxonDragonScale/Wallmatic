@@ -12,4 +12,5 @@ sealed interface HomeUiEvent {
     data class AlbumSelected(val albumId: Int, val target: TargetScreen) : HomeUiEvent
     data class AutoCycleToggled(val enabled: Boolean, val target: TargetScreen) : HomeUiEvent
     data class ChangeWallpaper(val target: TargetScreen) : HomeUiEvent
+    data class NavigateToWallpaper(val wallpaperId: Int) : HomeUiEvent
 }

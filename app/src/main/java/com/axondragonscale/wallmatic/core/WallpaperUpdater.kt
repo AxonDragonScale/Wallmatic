@@ -8,6 +8,8 @@ import com.axondragonscale.wallmatic.model.TargetScreen
 import com.axondragonscale.wallmatic.model.getAllWallpapers
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
+import com.axondragonscale.wallmatic.util.homeConfig
+import com.axondragonscale.wallmatic.util.lockConfig
 import com.axondragonscale.wallmatic.util.logD
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
@@ -36,6 +38,7 @@ class WallpaperUpdater @Inject constructor(
             return
         }
 
+        val timestamp = System.currentTimeMillis()
         val homeAlbumId = config.homeConfig.albumId
         val lockAlbumId = config.lockConfig.albumId
 
@@ -43,18 +46,38 @@ class WallpaperUpdater @Inject constructor(
             this.logD("Updating wallpaper. homeAlbumId: $homeAlbumId, lockAlbumId: $lockAlbumId")
             val wallpaper = repository.getFullAlbum(homeAlbumId).getAllWallpapers().random()
             setWallpaper(wallpaper, TargetScreen.Both)
+            appPrefsRepository.setConfig(
+                config
+                    .homeConfig {
+                        currentWallpaperId = wallpaper.id
+                        lastUpdated = timestamp
+                    }
+                    .lockConfig {
+                        currentWallpaperId = wallpaper.id
+                        lastUpdated = timestamp
+                    }
+            )
         } else {
             if (target.isHome()) {
                 this.logD("Updating home wallpaper. homeAlbumId: $homeAlbumId")
                 val wallpaper = repository.getFullAlbum(homeAlbumId).getAllWallpapers().random()
                 setWallpaper(wallpaper, TargetScreen.Home)
+                appPrefsRepository.setConfig(config.homeConfig {
+                    currentWallpaperId = wallpaper.id
+                    lastUpdated = timestamp
+                })
             }
             if (target.isLock()) {
                 this.logD("Updating lock wallpaper. lockAlbumId: $lockAlbumId")
                 val wallpaper = repository.getFullAlbum(lockAlbumId).getAllWallpapers().random()
                 setWallpaper(wallpaper, TargetScreen.Lock)
+                appPrefsRepository.setConfig(config.lockConfig {
+                    currentWallpaperId = wallpaper.id
+                    lastUpdated = timestamp
+                })
             }
         }
+        this.logD("Wallpaper update complete")
     }
 
     private fun setWallpaper(wallpaper: Wallpaper, target: TargetScreen) {

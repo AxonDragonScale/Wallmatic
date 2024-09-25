@@ -43,7 +43,7 @@ fun WallpaperThumbnail(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Empty",
+                text = "404",
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
             )
