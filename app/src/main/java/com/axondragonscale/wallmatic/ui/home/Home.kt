@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,6 +71,7 @@ import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.common.WallpaperThumbnail
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
+import com.axondragonscale.wallmatic.ui.util.performLongPressHapticFeedback
 import com.axondragonscale.wallmatic.ui.util.countSummary
 import com.axondragonscale.wallmatic.ui.util.getAspectRatio
 
@@ -456,9 +458,13 @@ private fun WallpaperPreviewCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            val view = LocalView.current
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = onChangeWallpaperClick,
+                onClick = {
+                    view.performLongPressHapticFeedback()
+                    onChangeWallpaperClick()
+                },
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(text = "Change Wallpaper")
