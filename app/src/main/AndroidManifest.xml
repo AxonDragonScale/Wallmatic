@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".WallmaticApplication"
@@ -50,6 +53,40 @@
             android:exported="true"
             android:label="Change Wallpaper"
             android:icon="@drawable/ic_replace_image"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+
+        </service>
+
+        <service
+            android:name=".background.HomeTileService"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Change Home Wallpaper"
+            android:icon="@drawable/ic_home_replace_image"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+
+        </service>
+
+        <service
+            android:name=".background.LockTileService"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Change Lock Wallpaper"
+            android:icon="@drawable/ic_lock_replace_image"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
 
             <intent-filter>

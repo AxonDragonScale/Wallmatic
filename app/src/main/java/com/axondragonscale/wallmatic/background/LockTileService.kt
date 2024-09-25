@@ -14,14 +14,14 @@ import javax.inject.Inject
  * Created by Ronak Harkhani on 22/09/24
  */
 @AndroidEntryPoint
-class WallmaticTileService: TileService() {
+class LockTileService: TileService() {
 
     @Inject lateinit var wallpaperUpdater: WallpaperUpdater
 
     override fun onClick() {
         this.logD("onClick")
         CoroutineScope(Dispatchers.IO).launch {
-            wallpaperUpdater.updateWallpaper(TargetScreen.Both)
+            wallpaperUpdater.updateWallpaper(TargetScreen.Lock)
         }
     }
 

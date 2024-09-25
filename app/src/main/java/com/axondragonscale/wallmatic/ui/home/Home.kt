@@ -1,6 +1,12 @@
 package com.axondragonscale.wallmatic.ui.home
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -105,7 +111,7 @@ fun Home(
                 if (it.hasHomeConfig()) it.homeConfig.albumId else -1
             },
             onSelectAlbum = {
-                vm.onEvent(HomeUiEvent.SelectAlbum(it.id, selectAlbumBottomSheetTarget!!))
+                vm.onEvent(HomeUiEvent.AlbumSelected(it.id, selectAlbumBottomSheetTarget!!))
             },
             onDismiss = { selectAlbumBottomSheetTarget = null },
         )
@@ -254,12 +260,14 @@ private fun HomeScreenCard(
             album = homeAlbum,
             autoCycleEnabled = homeConfig.autoCycleEnabled,
             onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home)) },
-            onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggle(it, TargetScreen.Home)) },
+            onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Home)) },
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        WallpaperPreviewCard()
+        WallpaperPreviewCard(
+            onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Home)) }
+        )
     }
 }
 
@@ -286,7 +294,7 @@ private fun LockScreenCard(
 
         MirrorHomeScreenCard(
             mirrorHomeConfigForLock = config.mirrorHomeConfigForLock,
-            onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggle) },
+            onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggled) },
         )
 
         // TODO: Extract this out
@@ -304,12 +312,14 @@ private fun LockScreenCard(
                     album = lockAlbum!!,
                     autoCycleEnabled = config.lockConfig.autoCycleEnabled,
                     onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
-                    onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggle(it, TargetScreen.Lock)) },
+                    onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Lock)) },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                WallpaperPreviewCard()
+                WallpaperPreviewCard(
+                    onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Lock)) }
+                )
             }
         }
     }
@@ -405,6 +415,7 @@ private fun AlbumConfigCard(
 @Composable
 private fun WallpaperPreviewCard(
     modifier: Modifier = Modifier,
+    onChangeWallpaperClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -447,7 +458,7 @@ private fun WallpaperPreviewCard(
 
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = { },
+                onClick = onChangeWallpaperClick,
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(text = "Change Wallpaper")
