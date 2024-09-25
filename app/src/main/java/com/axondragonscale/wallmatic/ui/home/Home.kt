@@ -69,6 +69,7 @@ import com.axondragonscale.wallmatic.ui.common.WallpaperThumbnail
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 import com.axondragonscale.wallmatic.ui.util.countSummary
 import com.axondragonscale.wallmatic.ui.util.performLongPressHapticFeedback
+import com.axondragonscale.wallmatic.ui.util.toDateTimeString
 
 /**
  * Created by Ronak Harkhani on 06/06/24
@@ -448,7 +449,7 @@ private fun WallpaperPreviewCard(
             WallpaperInfo(
                 icon = Icons.Outlined.RemoveFromQueue,
                 title = "Current Wallpaper",
-                time = "Date - Time"
+                time = wallpaperConfig.lastUpdated.toDateTimeString()
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -456,7 +457,7 @@ private fun WallpaperPreviewCard(
             WallpaperInfo(
                 icon = Icons.Outlined.QueuePlayNext,
                 title = "Next Wallpaper",
-                time = "Date - Time"
+                time = (wallpaperConfig.lastUpdated + wallpaperConfig.updateInterval).toDateTimeString()
             )
 
             Spacer(modifier = Modifier.height(12.dp))
