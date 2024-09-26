@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.outlined.BrightnessAuto
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -47,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.TabHeader
+import com.axondragonscale.wallmatic.ui.common.WallmaticCard
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
 /**
@@ -103,24 +102,16 @@ private fun ThemeCard(
     dynamicTheme: Boolean,
     onUiModeUpdate: (UIMode) -> Unit,
     onDynamicThemeToggle: (Boolean) -> Unit,
-) = Card(
-    modifier = modifier.fillMaxWidth(),
-    shape = RoundedCornerShape(12.dp),
-) {
-    Text(
-        modifier = Modifier.padding(top = 8.dp, start = 12.dp),
-        text = "Appearance",
-        style = MaterialTheme.typography.labelLarge,
-    )
+) = WallmaticCard(modifier = modifier, title = "Appearance") {
 
     DarkModeCard(
-        modifier = Modifier.padding(top = 4.dp),
+        modifier = Modifier.padding(bottom = 8.dp),
         uiMode = uiMode,
         onUiModeUpdate = onUiModeUpdate,
     )
 
     DynamicThemeCard(
-        modifier = Modifier.padding(bottom = 4.dp),
+        modifier = Modifier,
         dynamicTheme = dynamicTheme,
         onDynamicThemeToggle = onDynamicThemeToggle,
     )
@@ -229,24 +220,14 @@ private fun DynamicThemeCard(
 private fun DevToolsCard(
     modifier: Modifier = Modifier,
     onClearData: () -> Unit,
-) = Card(
-    modifier = modifier.fillMaxWidth(),
-    shape = RoundedCornerShape(12.dp),
-) {
-    Text(
-        modifier = Modifier.padding(top = 8.dp, start = 12.dp),
-        text = "Dev Tools",
-        style = MaterialTheme.typography.labelLarge,
-    )
+) = WallmaticCard(modifier = modifier, title = "Dev Tools") {
 
     ClearDataCard(
-        modifier = Modifier.padding(top = 4.dp),
+        modifier = Modifier.padding(bottom = 8.dp),
         onClick = onClearData,
     )
 
-    TodoCard(
-        modifier = Modifier.padding(bottom = 4.dp)
-    )
+    TodoCard()
 }
 
 @Composable
@@ -301,9 +282,7 @@ private fun BaseSettingCard(
     trailingContent: @Composable (() -> Unit)? = null,
 ) {
     ListItem(
-        modifier = modifier
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp)),
+        modifier = modifier.clip(RoundedCornerShape(8.dp)),
         leadingContent = leadingContent,
         headlineContent = headlineContent,
         supportingContent = supportingContent,

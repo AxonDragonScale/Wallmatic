@@ -64,6 +64,7 @@ import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.bottombar.Tab
 import com.axondragonscale.wallmatic.ui.common.SelectAlbumBottomSheet
 import com.axondragonscale.wallmatic.ui.common.TabHeader
+import com.axondragonscale.wallmatic.ui.common.WallmaticCard
 import com.axondragonscale.wallmatic.ui.common.WallpaperPreview
 import com.axondragonscale.wallmatic.ui.common.WallpaperThumbnail
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
@@ -178,8 +179,6 @@ private fun Home(
                     )
                 }
             }
-
-
         }
 
         Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
@@ -239,37 +238,23 @@ private fun HomeScreenCard(
     modifier: Modifier = Modifier,
     uiState: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
-) = Card(
-    modifier = modifier.fillMaxWidth(),
-    shape = RoundedCornerShape(12.dp),
-) {
-    Column(
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Text(
-            modifier = Modifier.padding(start = 8.dp),
-            text = "Home Screen",
-            style = MaterialTheme.typography.labelLarge,
-        )
+) = WallmaticCard(modifier = modifier, title = "Home Screen") {
 
-        Spacer(modifier = Modifier.height(8.dp))
+    AlbumConfigCard(
+        album = uiState.homeAlbum!!,
+        autoCycleEnabled = uiState.config.homeConfig.autoCycleEnabled,
+        onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home)) },
+        onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Home)) },
+    )
 
-        AlbumConfigCard(
-            album = uiState.homeAlbum!!,
-            autoCycleEnabled = uiState.config.homeConfig.autoCycleEnabled,
-            onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home)) },
-            onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Home)) },
-        )
+    Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        WallpaperPreviewCard(
-            wallpaper = uiState.homeWallpaper,
-            wallpaperConfig = uiState.config.homeConfig,
-            onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
-            onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Home)) }
-        )
-    }
+    WallpaperPreviewCard(
+        wallpaper = uiState.homeWallpaper,
+        wallpaperConfig = uiState.config.homeConfig,
+        onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
+        onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Home)) }
+    )
 }
 
 @Composable
@@ -277,53 +262,38 @@ private fun LockScreenCard(
     modifier: Modifier = Modifier,
     uiState: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
-) = Card(
-    modifier = modifier.fillMaxWidth(),
-    shape = RoundedCornerShape(12.dp),
-) {
-    Column(
-        modifier = Modifier.padding(8.dp)
+) = WallmaticCard(modifier = modifier, title = "Lock Screen") {
+    MirrorHomeScreenCard(
+        mirrorHomeConfigForLock = uiState.config.mirrorHomeConfigForLock,
+        onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggled) },
+    )
+
+    // TODO: Extract this out
+    // Maybe the preview and the other (future) controls should also be hidden
+    // when autoCycle is disabled
+    AnimatedVisibility(
+        visible = !uiState.config.mirrorHomeConfigForLock && uiState.lockAlbum != null,
+        enter = expandVertically(tween()) + fadeIn(tween(delayMillis = 300)),
+        exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
     ) {
-        Text(
-            modifier = Modifier.padding(start = 8.dp),
-            text = "Lock Screen",
-            style = MaterialTheme.typography.labelLarge,
-        )
+        Column {
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+            AlbumConfigCard(
+                album = uiState.lockAlbum!!,
+                autoCycleEnabled = uiState.config.lockConfig.autoCycleEnabled,
+                onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
+                onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Lock)) },
+            )
 
-        MirrorHomeScreenCard(
-            mirrorHomeConfigForLock = uiState.config.mirrorHomeConfigForLock,
-            onToggle = { onEvent(HomeUiEvent.MirrorHomeConfigForLockToggled) },
-        )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // TODO: Extract this out
-        // Maybe the preview and the other (future) controls should also be hidden
-        // when autoCycle is disabled
-        AnimatedVisibility(
-            visible = !uiState.config.mirrorHomeConfigForLock && uiState.lockAlbum != null,
-            enter = expandVertically(tween()) + fadeIn(tween(delayMillis = 300)),
-            exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
-        ) {
-            Column {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                AlbumConfigCard(
-                    album = uiState.lockAlbum!!,
-                    autoCycleEnabled = uiState.config.lockConfig.autoCycleEnabled,
-                    onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
-                    onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Lock)) },
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                WallpaperPreviewCard(
-                    wallpaper = uiState.lockWallpaper,
-                    wallpaperConfig = uiState.config.lockConfig,
-                    onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
-                    onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Lock)) }
-                )
-            }
+            WallpaperPreviewCard(
+                wallpaper = uiState.lockWallpaper,
+                wallpaperConfig = uiState.config.lockConfig,
+                onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
+                onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Lock)) }
+            )
         }
     }
 }
@@ -557,6 +527,7 @@ private fun Preview() {
                     isLoading = false,
                     albums = listOf(Album(name = "Album 1").apply { id = 1 }),
                     config = config {
+                        isInit = true
                         mirrorHomeConfigForLock = false
                         homeConfig = wallpaperConfig {
                             albumId = 1
