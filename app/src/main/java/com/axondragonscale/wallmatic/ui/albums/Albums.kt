@@ -147,7 +147,7 @@ private fun AlbumList(
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {
             TabHeader(
-                modifier = Modifier.padding(bottom = 8.dp),
+                modifier = Modifier.padding(start = 8.dp, top = 32.dp, bottom = 8.dp),
                 text = "Albums"
             )
         }

@@ -132,7 +132,7 @@ private fun Home(
             .verticalScroll(rememberScrollState()),
     ) {
         TabHeader(
-            modifier = Modifier.padding(vertical = 16.dp),
+            modifier = Modifier.padding(start = 8.dp, top = 48.dp, bottom = 8.dp),
             text = "Wallmatic"
         )
 
@@ -193,7 +193,7 @@ private fun TextAndButton(
     buttonText: String,
     buttonIcon: ImageVector,
     onClick: () -> Unit,
-) = Card(modifier = modifier) {
+) = Card(modifier = modifier.padding(vertical = 8.dp)) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             modifier = Modifier.padding(horizontal = 8.dp),

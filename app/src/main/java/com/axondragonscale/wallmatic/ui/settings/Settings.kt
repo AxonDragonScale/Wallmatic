@@ -71,10 +71,10 @@ private fun Settings(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(horizontal = 8.dp)
     ) {
         TabHeader(
-            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
+            modifier = Modifier.padding(start = 8.dp, top = 48.dp, bottom = 16.dp),
             text = "Settings"
         )
 
