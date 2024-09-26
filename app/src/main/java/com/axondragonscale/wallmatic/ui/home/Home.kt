@@ -181,7 +181,7 @@ private fun Home(
             }
         }
 
-        Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
+        Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT + 8.dp))
     }
 }
 
