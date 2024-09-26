@@ -152,7 +152,7 @@ private fun Home(
                         onClick = { onEvent(HomeUiEvent.CreateAlbumClick) }
                     )
 
-                !uiState.config.hasHomeConfig() && !uiState.config.hasLockConfig() ->
+                !uiState.config.isInit ->
                     TextAndButton(
                         text = """
                             Auto cycle wallpapers.

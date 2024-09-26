@@ -27,7 +27,8 @@ class WallpaperVM @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             uiState.update {
-                it.copy(wallpaper = repository.getWallpaper(wallpaperId))
+                // TODO: Handle wallpaper null case
+                it.copy(wallpaper = repository.getWallpaper(wallpaperId)!!)
             }
         }
     }

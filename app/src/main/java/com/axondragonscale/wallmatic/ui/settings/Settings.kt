@@ -2,6 +2,7 @@ package com.axondragonscale.wallmatic.ui.settings
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,14 +15,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brightness6
 import androidx.compose.material.icons.filled.BrightnessAuto
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.outlined.BrightnessAuto
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -85,6 +87,11 @@ private fun Settings(
             onDynamicThemeToggle = { onEvent(SettingsUiEvent.DynamicThemeToggle(it)) }
         )
 
+        DevToolsCard(
+            modifier = Modifier.padding(top = 16.dp),
+            onClearData = { onEvent(SettingsUiEvent.ClearData) }
+        )
+
         Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
     }
 }
@@ -125,7 +132,6 @@ private fun UIMode.getIcon(isActive: Boolean) = when (this) {
     UIMode.AUTO -> if (isActive) Icons.Filled.BrightnessAuto else Icons.Outlined.BrightnessAuto
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DarkModeCard(
     modifier: Modifier = Modifier,
@@ -214,6 +220,73 @@ private fun DynamicThemeCard(
             Switch(
                 checked = dynamicTheme,
                 onCheckedChange = onDynamicThemeToggle,
+            )
+        }
+    )
+}
+
+@Composable
+private fun DevToolsCard(
+    modifier: Modifier = Modifier,
+    onClearData: () -> Unit,
+) = Card(
+    modifier = modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(12.dp),
+) {
+    Text(
+        modifier = Modifier.padding(top = 8.dp, start = 12.dp),
+        text = "Dev Tools",
+        style = MaterialTheme.typography.labelLarge,
+    )
+
+    ClearDataCard(
+        modifier = Modifier.padding(top = 4.dp),
+        onClick = onClearData,
+    )
+
+    TodoCard(
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
+}
+
+@Composable
+private fun ClearDataCard(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    BaseSettingCard(
+        modifier = modifier.clickable { onClick() },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.DeleteForever,
+                contentDescription = "Clear Data",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Clear Data",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    )
+}
+
+@Composable
+private fun TodoCard(modifier: Modifier = Modifier) {
+    BaseSettingCard(
+        modifier = modifier,
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.CalendarToday,
+                contentDescription = "Clear Data",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "TODO",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
             )
         }
     )

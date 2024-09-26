@@ -33,7 +33,7 @@ interface WallmaticDao {
     suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
 
     @Query("SELECT * FROM wallpaper WHERE id = :id")
-    suspend fun getWallpaper(id: Int): Wallpaper
+    suspend fun getWallpaper(id: Int): Wallpaper?
 
     // Upsert
 

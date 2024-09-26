@@ -3,6 +3,7 @@ package com.axondragonscale.wallmatic.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
+import com.axondragonscale.wallmatic.util.DevTools
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class SettingsVM @Inject constructor(
     private val appPrefsRepository: AppPrefsRepository,
+    private val devTools: DevTools,
 ) : ViewModel() {
 
     val uiState = MutableStateFlow(SettingsUiState())
@@ -41,6 +43,9 @@ internal class SettingsVM @Inject constructor(
 
             is SettingsUiEvent.DynamicThemeToggle ->
                 appPrefsRepository.setDynamicTheme(event.dynamicTheme)
+
+            is SettingsUiEvent.ClearData ->
+                devTools.clearData()
         }
     }
 

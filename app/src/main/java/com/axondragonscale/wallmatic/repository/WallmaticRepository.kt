@@ -49,7 +49,7 @@ class WallmaticRepository @Inject constructor(
         return wallmaticDao.getWallpapers(wallpaperIds)
     }
 
-    suspend fun getWallpaper(wallpaperId: Int): Wallpaper {
+    suspend fun getWallpaper(wallpaperId: Int): Wallpaper? {
         return wallmaticDao.getWallpaper(wallpaperId)
     }
 
