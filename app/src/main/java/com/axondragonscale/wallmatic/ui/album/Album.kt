@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
@@ -63,6 +63,7 @@ import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
+import com.axondragonscale.wallmatic.ui.util.getAspectRatio
 
 /**
  * Created by Ronak Harkhani on 23/06/24
@@ -270,7 +271,9 @@ private fun Folder(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(folder.wallpapers) {
+                // Height + Aspect Ratio = Fixed Size = Better Perf
                 Wallpaper(
+                    modifier = Modifier.aspectRatio(getAspectRatio()),
                     uri = it.uri,
                     onClick = { onWallpaperClick(it.id) },
                     cornerRadius = 8.dp,
