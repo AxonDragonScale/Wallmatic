@@ -3,6 +3,7 @@ package com.axondragonscale.wallmatic.core
 import android.content.Context
 import android.app.WallpaperManager
 import androidx.core.net.toUri
+import com.axondragonscale.wallmatic.background.WallmaticScheduler
 import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import com.axondragonscale.wallmatic.model.TargetScreen
 import com.axondragonscale.wallmatic.model.getAllWallpapers
@@ -24,6 +25,7 @@ class WallpaperUpdater @Inject constructor(
     @ApplicationContext val context: Context,
     private val appPrefsRepository: AppPrefsRepository,
     private val repository: WallmaticRepository,
+    private val scheduler: WallmaticScheduler,
 ) {
 
     private val manager = WallpaperManager.getInstance(context)
@@ -33,6 +35,8 @@ class WallpaperUpdater @Inject constructor(
      * Note: If mirroring is enabled, this will update both the home and lock wallpapers.
      */
     suspend fun updateWallpaper(target: TargetScreen) {
+        this.logD("Wallpaper update start. target: $target")
+
         val config = appPrefsRepository.configFlow.firstOrNull() ?: run {
             this.logD("Wallpaper update failed. Config is null")
             return
@@ -78,6 +82,8 @@ class WallpaperUpdater @Inject constructor(
             }
         }
         this.logD("Wallpaper update complete")
+
+        scheduler.scheduleNextUpdate()
     }
 
     private fun setWallpaper(wallpaper: Wallpaper, target: TargetScreen) {

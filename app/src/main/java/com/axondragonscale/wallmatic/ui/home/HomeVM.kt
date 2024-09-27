@@ -83,11 +83,11 @@ class HomeVM @Inject constructor(
                     homeConfig = wallpaperConfig {
                         albumId = event.albumId
                         autoCycleEnabled = true
-                        currentWallpaperId = -1 // TODO: Randomly choose a wallpaper from album. Use id here and do async wallpaper set
+                        currentWallpaperId = -1 // Will be set after updateWallpaper
                         updateInterval = 15.minutes.inWholeMilliseconds
                         lastUpdated = -1
                     }
-                    lockConfig = homeConfig // TODO: Verify this works
+                    lockConfig = homeConfig
                 }
             } else {
                 uiState.value.config
