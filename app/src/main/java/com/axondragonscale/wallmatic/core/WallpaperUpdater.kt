@@ -31,6 +31,31 @@ class WallpaperUpdater @Inject constructor(
     private val manager = WallpaperManager.getInstance(context)
 
     /**
+     * Update one or both wallpaper if the updateInterval has passed since the last update.
+     */
+    suspend fun updateWallpaper() {
+        val config = appPrefsRepository.configFlow.firstOrNull() ?: run {
+            this.logD("Wallpaper update failed. Config is null")
+            return
+        }
+
+        val now = System.currentTimeMillis()
+        val updateHomeWallpaper = config.homeConfig.run { lastUpdated + updateInterval } < now
+        val updateLockWallpaper = config.lockConfig.run { lastUpdated + updateInterval } < now
+
+        val target = when {
+            updateHomeWallpaper && updateLockWallpaper -> TargetScreen.Both
+            updateHomeWallpaper && config.mirrorHomeConfigForLock -> TargetScreen.Both
+            updateHomeWallpaper -> TargetScreen.Home
+            updateLockWallpaper -> TargetScreen.Lock
+            else -> null
+        }
+
+        if (target != null) updateWallpaper(target)
+        else scheduler.scheduleNextUpdate()
+    }
+
+    /**
      * Updates the wallpaper for the given target.
      * Note: If mirroring is enabled, this will update both the home and lock wallpapers.
      */

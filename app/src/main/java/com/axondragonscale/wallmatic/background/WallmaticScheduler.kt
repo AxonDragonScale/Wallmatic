@@ -5,10 +5,10 @@ import android.app.PendingIntent
 import android.content.Context
 import androidx.core.content.getSystemService
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
-import com.axondragonscale.wallmatic.ui.util.toDateTimeString
+import com.axondragonscale.wallmatic.ui.util.toTimestampString
 import com.axondragonscale.wallmatic.util.logD
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,8 +29,14 @@ class WallmaticScheduler @Inject constructor(
 
     suspend fun scheduleNextUpdate() {
         this.logD("schedule start")
-        val config = appPrefsRepository.configFlow.first()
-        if (!config.isInit) { this.logD("schedule skipped. isInit: ${config.isInit}"); return }
+        val config = appPrefsRepository.configFlow.firstOrNull() ?: run {
+            this.logD("Wallpaper update failed. Config is null")
+            return
+        }
+
+        if (!config.isInit) {
+            this.logD("schedule skipped. isInit: ${config.isInit}"); return
+        }
 
         val homeNextUpdate = config.homeConfig.run { lastUpdated + updateInterval }
         val lockNextUpdate = config.lockConfig.run { lastUpdated + updateInterval }
@@ -45,15 +51,31 @@ class WallmaticScheduler @Inject constructor(
 
         alarmManager ?: run { this.logD("alarmManager is null"); return }
 
-        this.logD("Scheduling next update: ${nextUpdate.toDateTimeString()}")
-        val pendingIntent = PendingIntent.getService(
-            context,
-            ALARM_REQUEST_CODE,
-            WallmaticService.getIntent(context),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-        )
+        this.logD("Scheduling next update: ${nextUpdate.toTimestampString()}")
+        val pendingIntent = getPendingIntent()
         alarmManager.cancel(pendingIntent)
-        alarmManager.set(AlarmManager.RTC_WAKEUP, nextUpdate, pendingIntent)
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextUpdate, pendingIntent)
         this.logD("schedule success")
     }
+
+    suspend fun cancelScheduledUpdates() {
+        this.logD("Cancelling scheduled updates")
+        alarmManager?.cancel(getPendingIntent())
+    }
+
+    private fun getPendingIntent() =
+        PendingIntent.getBroadcast(
+            context,
+            ALARM_REQUEST_CODE,
+            WallmaticReceiver.getWallpaperChangeIntent(context),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+
+//    private fun getPendingIntent() =
+//        PendingIntent.getService(
+//            context,
+//            ALARM_REQUEST_CODE,
+//            WallmaticService.getIntent(context),
+//            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+//        )
 }

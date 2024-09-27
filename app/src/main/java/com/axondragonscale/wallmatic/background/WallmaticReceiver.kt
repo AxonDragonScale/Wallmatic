@@ -3,8 +3,14 @@ package com.axondragonscale.wallmatic.background
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.axondragonscale.wallmatic.core.WallpaperUpdater
+import com.axondragonscale.wallmatic.util.logD
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.system.measureTimeMillis
 
 /**
  * This receiver is intended to reschedule wallpaper changes when:
@@ -15,15 +21,39 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class WallmaticReceiver : BroadcastReceiver() {
 
-    @Inject lateinit var scheduler: WallmaticScheduler
+    companion object {
+        private const val TAG = "WallmaticReceiver"
+        private const val ACTION_CHANGE_WALLPAPER = "com.axondragonscale.wallmatic.CHANGE_WALLPAPER"
 
-    override fun onReceive(context: Context, intent: Intent) {
-        if (
-            intent.action == Intent.ACTION_BOOT_COMPLETED
-            || intent.action == Intent.ACTION_TIME_CHANGED
-            || intent.action == Intent.ACTION_TIMEZONE_CHANGED
-        ) {
-            // TODO: Schedule the next wallpaper change
+        fun getWallpaperChangeIntent(context: Context) =
+            Intent(context, WallmaticReceiver::class.java).apply {
+                action = ACTION_CHANGE_WALLPAPER
+            }
+    }
+
+    @Inject lateinit var scheduler: WallmaticScheduler
+    @Inject lateinit var wallpaperUpdater: WallpaperUpdater
+
+    override fun onReceive(context: Context, intent: Intent) = goAsync {
+        TAG.logD("Broadcast received: ${intent.action}")
+
+        when (intent.action) {
+            // TODO: Will this exceed the 10s time limit
+            // Should this just start the service instead
+            ACTION_CHANGE_WALLPAPER -> wallpaperUpdater.updateWallpaper()
+
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_TIME_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED -> scheduler.scheduleNextUpdate()
+        }
+    }
+
+    private fun BroadcastReceiver.goAsync(block: suspend () -> Unit) {
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            val time = measureTimeMillis { block() }
+            TAG.logD("Broadcast processing time: $time ms")
+            pendingResult.finish()
         }
     }
 
