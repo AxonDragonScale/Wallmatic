@@ -13,6 +13,7 @@ import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.ui.WallmaticApp
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
+import com.axondragonscale.wallmatic.util.logD
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -25,6 +26,8 @@ class WallmaticActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.logD("onCreate")
+
         enableEdgeToEdge()
 
         val splashScreen = installSplashScreen()
