@@ -9,4 +9,5 @@ internal sealed interface SettingsUiEvent {
     data class UIModeUpdate(val uiMode: UIMode) : SettingsUiEvent
     data class DynamicThemeToggle(val dynamicTheme: Boolean) : SettingsUiEvent
     data object ClearData : SettingsUiEvent
+    data class FastAutoCycleToggled(val fastAutoCycle: Boolean) : SettingsUiEvent
 }

@@ -72,4 +72,18 @@ class AppPrefsRepository @Inject constructor(
     suspend fun setConfig(config: Config) {
         context.configStore.updateData { config }
     }
+
+    // ------------------------ Dev Tools Prefs ------------------------
+
+    private val fastAutoCycleKey = booleanPreferencesKey("fastAutoCycle")
+    val fastAutoCycleFlow = context.appPrefs.data
+        .map { prefs -> prefs[fastAutoCycleKey] ?: false }
+        .distinctUntilChanged()
+
+    suspend fun setFastAutoCycle(fastAutoCycle: Boolean) {
+        context.appPrefs.edit { prefs ->
+            prefs[fastAutoCycleKey] = fastAutoCycle
+        }
+    }
+
 }

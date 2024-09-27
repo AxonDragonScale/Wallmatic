@@ -55,7 +55,7 @@ class WallmaticScheduler @Inject constructor(
         val pendingIntent = getPendingIntent()
         alarmManager.cancel(pendingIntent)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextUpdate, pendingIntent)
-        this.logD("schedule success")
+        this.logD("Scheduled update successfully")
     }
 
     suspend fun cancelScheduledUpdates() {

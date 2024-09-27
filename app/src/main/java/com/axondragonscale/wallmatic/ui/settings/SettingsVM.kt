@@ -2,14 +2,21 @@ package com.axondragonscale.wallmatic.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.axondragonscale.wallmatic.background.WallmaticScheduler
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.util.DevTools
+import com.axondragonscale.wallmatic.util.collect
+import com.axondragonscale.wallmatic.util.homeConfig
+import com.axondragonscale.wallmatic.util.lockConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Created by Ronak Harkhani on 09/06/24
@@ -18,21 +25,26 @@ import javax.inject.Inject
 internal class SettingsVM @Inject constructor(
     private val appPrefsRepository: AppPrefsRepository,
     private val devTools: DevTools,
+    private val scheduler: WallmaticScheduler,
 ) : ViewModel() {
 
     val uiState = MutableStateFlow(SettingsUiState())
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            appPrefsRepository.uiModeFlow.collect { uiMode ->
-                uiState.update { it.copy(uiMode = uiMode) }
-            }
-        }
-        // This flow is not collected if its in the same coroutine.
-        viewModelScope.launch(Dispatchers.IO) {
-            appPrefsRepository.dynamicThemeFlow.collect { dynamicTheme ->
-                uiState.update { it.copy(dynamicTheme = dynamicTheme) }
-            }
+            combine(
+                appPrefsRepository.uiModeFlow,
+                appPrefsRepository.dynamicThemeFlow,
+                appPrefsRepository.fastAutoCycleFlow,
+            ) { uiMode, dynamicTheme, fastAutoCycle ->
+                uiState.update {
+                    it.copy(
+                        uiMode = uiMode,
+                        dynamicTheme = dynamicTheme,
+                        fastAutoCycle = fastAutoCycle,
+                    )
+                }
+            }.collect()
         }
     }
 
@@ -46,6 +58,18 @@ internal class SettingsVM @Inject constructor(
 
             is SettingsUiEvent.ClearData ->
                 devTools.clearData()
+
+            is SettingsUiEvent.FastAutoCycleToggled -> {
+                appPrefsRepository.setFastAutoCycle(event.fastAutoCycle)
+                val config = appPrefsRepository.configFlow.firstOrNull() ?: return@launch
+                val newUpdateInterval = if (event.fastAutoCycle) 1.minutes else 15.minutes
+                appPrefsRepository.setConfig(
+                    config
+                        .homeConfig { updateInterval = newUpdateInterval.inWholeMilliseconds }
+                        .lockConfig { updateInterval = newUpdateInterval.inWholeMilliseconds }
+                )
+                scheduler.scheduleNextUpdate()
+            }
         }
     }
 

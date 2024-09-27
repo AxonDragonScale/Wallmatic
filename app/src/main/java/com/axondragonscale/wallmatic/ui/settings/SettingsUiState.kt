@@ -8,4 +8,5 @@ import com.axondragonscale.wallmatic.model.UIMode
 internal data class SettingsUiState(
     val uiMode: UIMode = UIMode.AUTO,
     val dynamicTheme: Boolean = false,
+    val fastAutoCycle: Boolean = false,
 )

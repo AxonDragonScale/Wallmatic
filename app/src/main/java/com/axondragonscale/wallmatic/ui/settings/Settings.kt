@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.BrightnessAuto
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
@@ -88,7 +89,9 @@ private fun Settings(
 
         DevToolsCard(
             modifier = Modifier.padding(top = 16.dp),
-            onClearData = { onEvent(SettingsUiEvent.ClearData) }
+            fastAutoCycle = uiState.fastAutoCycle,
+            onClearData = { onEvent(SettingsUiEvent.ClearData) },
+            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) }
         )
 
         Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
@@ -219,7 +222,9 @@ private fun DynamicThemeCard(
 @Composable
 private fun DevToolsCard(
     modifier: Modifier = Modifier,
+    fastAutoCycle: Boolean,
     onClearData: () -> Unit,
+    onFastAutoCycleToggled: (Boolean) -> Unit,
 ) = WallmaticCard(modifier = modifier, title = "Dev Tools") {
 
     ClearDataCard(
@@ -227,7 +232,10 @@ private fun DevToolsCard(
         onClick = onClearData,
     )
 
-    TodoCard()
+    FastAutoCycleCard(
+        fastAutoCycle = fastAutoCycle,
+        onToggled = onFastAutoCycleToggled,
+    )
 }
 
 @Composable
@@ -254,20 +262,30 @@ private fun ClearDataCard(
 }
 
 @Composable
-private fun TodoCard(modifier: Modifier = Modifier) {
+private fun FastAutoCycleCard(
+    modifier: Modifier = Modifier,
+    fastAutoCycle: Boolean,
+    onToggled: (Boolean) -> Unit,
+) {
     BaseSettingCard(
         modifier = modifier,
         leadingContent = {
             Icon(
-                imageVector = Icons.Filled.CalendarToday,
-                contentDescription = "Clear Data",
+                imageVector = Icons.Filled.Refresh,
+                contentDescription = null,
             )
         },
         headlineContent = {
             Text(
-                text = "TODO",
+                text = "Fast Autocycle",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
+            )
+        },
+        trailingContent = {
+            Switch(
+                checked = fastAutoCycle,
+                onCheckedChange = onToggled,
             )
         }
     )
