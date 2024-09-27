@@ -24,3 +24,12 @@ fun Long.toDateTimeString(): String =
             )
         )
 
+fun Long.toTimestampString(): String =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        .format(
+            LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(this),
+                ZoneId.systemDefault()
+            )
+        )
+

@@ -36,8 +36,8 @@ fun Any.logA(msg: String) = this.log(Log.ASSERT, msg)
 
 private fun Any.log(priority: Int, msg: String) {
     if (!isLoggingEnabled) return
-    if (usePrintlnLogs) println("${this.getTag()}: $msg")
-    else Log.println(priority, this.getTag(), msg)
+    if (usePrintlnLogs) println("#${this.getTag()}: $msg")
+    else Log.println(priority, "#${this.getTag()}", msg)
 }
 
 private fun Any.getTag() = when {

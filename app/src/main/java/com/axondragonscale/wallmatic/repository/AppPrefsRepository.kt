@@ -42,7 +42,7 @@ private val Context.appPrefs: DataStore<Preferences> by preferencesDataStore(APP
 
 @Singleton
 class AppPrefsRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext val context: Context,
 ) {
 
     private val uiModeKey = intPreferencesKey("uiMode")
