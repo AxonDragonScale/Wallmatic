@@ -24,6 +24,9 @@ fun Long.toDateTimeString(): String =
             )
         )
 
+/**
+ * Converts this epoch millis Long to string in the format: `yyyy-MM-dd'T'HH:mm:ss`
+ */
 fun Long.toTimestampString(): String =
     DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
         .format(
@@ -32,4 +35,3 @@ fun Long.toTimestampString(): String =
                 ZoneId.systemDefault()
             )
         )
-

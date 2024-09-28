@@ -282,6 +282,12 @@ private fun FastAutoCycleCard(
                 fontWeight = FontWeight.Bold,
             )
         },
+        supportingContent = {
+            Text(
+                text = "Use one minute Autocycle interval",
+                style = MaterialTheme.typography.labelSmall
+            )
+        },
         trailingContent = {
             Switch(
                 checked = fastAutoCycle,

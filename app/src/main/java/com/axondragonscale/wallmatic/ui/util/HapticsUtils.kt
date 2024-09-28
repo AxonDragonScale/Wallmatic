@@ -7,6 +7,8 @@ import android.view.View
  * Created by Ronak Harkhani on 25/09/24
  */
 
-fun View.performLongPressHapticFeedback() {
+fun View.performLongPressHapticFeedback() =
     this.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-}
+
+fun View.performTickHapticFeedback() =
+    this.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)

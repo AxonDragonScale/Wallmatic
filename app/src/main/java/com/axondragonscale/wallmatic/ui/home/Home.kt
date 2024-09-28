@@ -33,12 +33,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,7 +74,15 @@ import com.axondragonscale.wallmatic.ui.common.WallpaperThumbnail
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 import com.axondragonscale.wallmatic.ui.util.countSummary
 import com.axondragonscale.wallmatic.ui.util.performLongPressHapticFeedback
+import com.axondragonscale.wallmatic.ui.util.performTickHapticFeedback
 import com.axondragonscale.wallmatic.ui.util.toDateTimeString
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Created by Ronak Harkhani on 06/06/24
@@ -243,17 +255,32 @@ private fun HomeScreenCard(
     AlbumConfigCard(
         album = uiState.homeAlbum!!,
         autoCycleEnabled = uiState.config.homeConfig.autoCycleEnabled,
-        onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home)) },
-        onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Home)) },
+        onSelectAlbumClick = {
+            onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Home))
+        },
+        onAutoCycleToggle = {
+            onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Home))
+        },
     )
 
-    Spacer(modifier = Modifier.height(8.dp))
-
     WallpaperPreviewCard(
+        modifier = Modifier.padding(top = 8.dp),
         wallpaper = uiState.homeWallpaper,
         wallpaperConfig = uiState.config.homeConfig,
-        onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
-        onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Home)) }
+        onWallpaperClick = {
+            onEvent(HomeUiEvent.NavigateToWallpaper(it))
+        },
+        onChangeWallpaperClick = {
+            onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Home))
+        }
+    )
+
+    AutoCycleIntervalCard(
+        modifier = Modifier.padding(top = 8.dp),
+        interval = uiState.config.homeConfig.updateInterval,
+        onIntervalUpdate = {
+            onEvent(HomeUiEvent.IntervalUpdated(it, TargetScreen.Home))
+        },
     )
 }
 
@@ -277,22 +304,36 @@ private fun LockScreenCard(
         exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
     ) {
         Column {
-            Spacer(modifier = Modifier.height(8.dp))
-
             AlbumConfigCard(
+                modifier = Modifier.padding(top = 8.dp),
                 album = uiState.lockAlbum!!,
                 autoCycleEnabled = uiState.config.lockConfig.autoCycleEnabled,
-                onSelectAlbumClick = { onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock)) },
-                onAutoCycleToggle = { onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Lock)) },
+                onSelectAlbumClick = {
+                    onEvent(HomeUiEvent.SelectAlbumClick(TargetScreen.Lock))
+                },
+                onAutoCycleToggle = {
+                    onEvent(HomeUiEvent.AutoCycleToggled(it, TargetScreen.Lock))
+                },
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             WallpaperPreviewCard(
+                modifier = Modifier.padding(top = 8.dp),
                 wallpaper = uiState.lockWallpaper,
                 wallpaperConfig = uiState.config.lockConfig,
-                onWallpaperClick = { onEvent(HomeUiEvent.NavigateToWallpaper(it)) },
-                onChangeWallpaperClick = { onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Lock)) }
+                onWallpaperClick = {
+                    onEvent(HomeUiEvent.NavigateToWallpaper(it))
+                },
+                onChangeWallpaperClick = {
+                    onEvent(HomeUiEvent.ChangeWallpaper(TargetScreen.Lock))
+                }
+            )
+
+            AutoCycleIntervalCard(
+                modifier = Modifier.padding(top = 8.dp),
+                interval = uiState.config.lockConfig.updateInterval,
+                onIntervalUpdate = {
+                    onEvent(HomeUiEvent.IntervalUpdated(it, TargetScreen.Lock))
+                },
             )
         }
     }
@@ -479,8 +520,90 @@ fun WallpaperInfo(
 }
 
 @Composable
-fun IntervalSliderCard(modifier: Modifier = Modifier) {
+private fun AutoCycleIntervalCard(
+    modifier: Modifier = Modifier,
+    interval: Long,
+    onIntervalUpdate: (Long) -> Unit,
+) {
+    val view = LocalView.current
+    val scope = rememberCoroutineScope()
+    var job by remember { mutableStateOf<Job?>(null) }
 
+    var hours by remember(interval) {
+        mutableFloatStateOf((interval.milliseconds.inWholeHours % 24).toFloat())
+    }
+    var mins by remember(interval) {
+        mutableFloatStateOf((interval.milliseconds.inWholeMinutes % 60).toFloat())
+    }
+
+    val updateInterval = {
+        job?.cancel()
+        job = scope.launch {
+            delay(500)
+            if (!isActive) return@launch
+            onIntervalUpdate(
+                hours.toInt().hours.inWholeMilliseconds + mins.toInt().minutes.inWholeMilliseconds
+            )
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .padding(8.dp),
+    ) {
+        val hoursText = if (hours.toInt() != 0) "${hours.toInt()} Hours, " else ""
+        val minsText = if (mins.toInt() != 0) "${mins.toInt()} Minutes" else ""
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = "Auto Cycle Interval",
+            style = MaterialTheme.typography.labelLarge
+        )
+
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+                .padding(horizontal = 8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(vertical = 8.dp),
+            text = "$hoursText$minsText",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center,
+        )
+
+        Slider(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            value = hours,
+            valueRange = 0f..24f,
+            steps = 23,
+            onValueChange = { newHours ->
+                hours = newHours
+                view.performTickHapticFeedback()
+                if (hours.toInt() == 0 && mins < 15) mins = 15f
+                updateInterval()
+            },
+        )
+
+        Slider(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .padding(top = 8.dp),
+            value = mins,
+            valueRange = 0f..60f,
+            steps = 59,
+            onValueChange = { newMins ->
+                mins = if (hours.toInt() == 0 && newMins < 15) 15f else newMins
+                view.performTickHapticFeedback()
+                updateInterval()
+            },
+        )
+    }
 }
 
 
@@ -531,6 +654,7 @@ private fun Preview() {
                         mirrorHomeConfigForLock = false
                         homeConfig = wallpaperConfig {
                             albumId = 1
+                            updateInterval = 15.minutes.inWholeMilliseconds
                         }
                         lockConfig = wallpaperConfig {
                             albumId = 1

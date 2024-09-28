@@ -2,6 +2,7 @@ package com.axondragonscale.wallmatic.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.axondragonscale.wallmatic.background.WallmaticScheduler
 import com.axondragonscale.wallmatic.core.WallpaperUpdater
 import com.axondragonscale.wallmatic.model.config
 import com.axondragonscale.wallmatic.model.copy
@@ -11,10 +12,12 @@ import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.collect
 import com.axondragonscale.wallmatic.util.homeConfig
 import com.axondragonscale.wallmatic.util.lockConfig
+import com.axondragonscale.wallmatic.util.logD
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +30,7 @@ import kotlin.time.Duration.Companion.minutes
 class HomeVM @Inject constructor(
     private val wallmaticRepository: WallmaticRepository,
     private val appPrefsRepository: AppPrefsRepository,
+    private val scheduler: WallmaticScheduler,
     private val wallpaperUpdater: WallpaperUpdater,
 ) : ViewModel() {
 
@@ -59,11 +63,12 @@ class HomeVM @Inject constructor(
         }
     }
 
-    fun onEvent(event: HomeUiEvent) = viewModelScope.launch {
+    fun onEvent(event: HomeUiEvent) = viewModelScope.launch(Dispatchers.IO) {
         when (event) {
             is HomeUiEvent.AlbumSelected -> onAlbumSelected(event)
-            is HomeUiEvent.AutoCycleToggled -> onAutoCycleToggled(event)
             HomeUiEvent.MirrorHomeConfigForLockToggled -> onMirrorHomeConfigForLockToggled()
+            is HomeUiEvent.AutoCycleToggled -> onAutoCycleToggled(event)
+            is HomeUiEvent.IntervalUpdated -> onIntervalUpdated(event)
             is HomeUiEvent.ChangeWallpaper -> wallpaperUpdater.updateWallpaper(event.target)
 
             // Handled in Compose
@@ -98,6 +103,12 @@ class HomeVM @Inject constructor(
         wallpaperUpdater.updateWallpaper(event.target)
     }
 
+    private suspend fun onMirrorHomeConfigForLockToggled() {
+        appPrefsRepository.setConfig(
+            uiState.value.config.copy { mirrorHomeConfigForLock = !mirrorHomeConfigForLock }
+        )
+    }
+
     private suspend fun onAutoCycleToggled(event: HomeUiEvent.AutoCycleToggled) {
         appPrefsRepository.setConfig(
             uiState.value.config
@@ -106,9 +117,16 @@ class HomeVM @Inject constructor(
         )
     }
 
-    private suspend fun onMirrorHomeConfigForLockToggled() {
+    private suspend fun onIntervalUpdated(event: HomeUiEvent.IntervalUpdated) {
+        viewModelScope.launch(Dispatchers.IO) {
+           if (appPrefsRepository.fastAutoCycleFlow.firstOrNull() == true)
+               appPrefsRepository.setFastAutoCycle(false)
+        }
         appPrefsRepository.setConfig(
-            uiState.value.config.copy { mirrorHomeConfigForLock = !mirrorHomeConfigForLock }
+            uiState.value.config
+                .homeConfig { if (event.target.isHome()) updateInterval = event.interval }
+                .lockConfig { if (event.target.isLock()) updateInterval = event.interval }
         )
+        scheduler.scheduleNextUpdate()
     }
 }

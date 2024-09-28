@@ -28,7 +28,7 @@ class WallmaticScheduler @Inject constructor(
     private val alarmManager = context.getSystemService<AlarmManager>()
 
     suspend fun scheduleNextUpdate() {
-        this.logD("schedule start")
+        this.logD("scheduleNextUpdate start")
         val config = appPrefsRepository.configFlow.firstOrNull() ?: run {
             this.logD("Wallpaper update failed. Config is null")
             return
