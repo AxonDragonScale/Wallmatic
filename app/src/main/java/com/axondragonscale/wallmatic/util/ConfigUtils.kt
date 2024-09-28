@@ -16,6 +16,7 @@ fun Config.mirrorHomeConfigForLock(block: ConfigKt.Dsl.() -> Boolean) = this.cop
 
 fun Config.homeConfig(block: WallpaperConfigKt.Dsl.() -> Unit) = this.copy {
     homeConfig = homeConfig.copy { block() }
+    if (mirrorHomeConfigForLock) lockConfig = homeConfig
 }
 
 fun Config.lockConfig(block: WallpaperConfigKt.Dsl.() -> Unit) = this.copy {
@@ -23,4 +24,4 @@ fun Config.lockConfig(block: WallpaperConfigKt.Dsl.() -> Unit) = this.copy {
 }
 
 val WallpaperConfig.nextUpdate: Long
-    get() = lastUpdated + updateInterval
+    get() = if (autoCycleEnabled) lastUpdated + updateInterval else Long.MAX_VALUE

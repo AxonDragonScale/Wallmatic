@@ -32,11 +32,18 @@ class WallpaperUpdater @Inject constructor(
     private val manager = WallpaperManager.getInstance(context)
 
     /**
-     * Update one or both wallpaper if the updateInterval has passed since the last update.
+     * Update one or both wallpapers if the updateInterval has passed since the last update.
+     * Determines if one or both wallpapers should be update based on config.
+     * Schedules the next update if wallpapers are not updated.
      */
     suspend fun updateWallpaper() {
         val config = appPrefsRepository.configFlow.firstOrNull() ?: run {
             this.logD("Wallpaper update failed. Config is null")
+            return
+        }
+
+        if (!config.isInit) {
+            this.logD("Wallpaper update skipped. isInit: ${config.isInit}")
             return
         }
 
@@ -68,6 +75,11 @@ class WallpaperUpdater @Inject constructor(
             return
         }
 
+        if (!config.isInit) {
+            this.logD("Wallpaper update skipped. isInit: ${config.isInit}")
+            return
+        }
+
         val timestamp = System.currentTimeMillis()
         val homeAlbumId = config.homeConfig.albumId
         val lockAlbumId = config.lockConfig.albumId
@@ -76,17 +88,11 @@ class WallpaperUpdater @Inject constructor(
             this.logD("Updating wallpaper. homeAlbumId: $homeAlbumId, lockAlbumId: $lockAlbumId")
             val wallpaper = repository.getFullAlbum(homeAlbumId).getAllWallpapers().random()
             setWallpaper(wallpaper, TargetScreen.Both)
-            appPrefsRepository.setConfig(
-                config
-                    .homeConfig {
-                        currentWallpaperId = wallpaper.id
-                        lastUpdated = timestamp
-                    }
-                    .lockConfig {
-                        currentWallpaperId = wallpaper.id
-                        lastUpdated = timestamp
-                    }
-            )
+            // Lock Config automatically updated since mirroring is enabled
+            appPrefsRepository.setConfig(config.homeConfig {
+                currentWallpaperId = wallpaper.id
+                lastUpdated = timestamp
+            })
         } else {
             if (target.isHome()) {
                 this.logD("Updating home wallpaper. homeAlbumId: $homeAlbumId")

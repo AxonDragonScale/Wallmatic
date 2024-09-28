@@ -106,8 +106,7 @@ class HomeVM @Inject constructor(
     private suspend fun onMirrorHomeConfigForLockToggled() {
         appPrefsRepository.setConfig(
             uiState.value.config.copy {
-                // If mirroring was enabled set lockConfig to same as homoConfig
-                if (mirrorHomeConfigForLock) lockConfig = homeConfig
+                lockConfig = homeConfig
                 mirrorHomeConfigForLock = !mirrorHomeConfigForLock
             }
         )
@@ -119,6 +118,12 @@ class HomeVM @Inject constructor(
                 .homeConfig { if (event.target.isHome()) autoCycleEnabled = event.enabled }
                 .lockConfig { if (event.target.isLock()) autoCycleEnabled = event.enabled }
         )
+        with(uiState.value.config) {
+            if (!homeConfig.autoCycleEnabled && !lockConfig.autoCycleEnabled)
+                scheduler.cancelScheduledUpdates()
+            else if (homeConfig.autoCycleEnabled || lockConfig.autoCycleEnabled)
+                scheduler.scheduleNextUpdate()
+        }
     }
 
     private suspend fun onIntervalUpdated(event: HomeUiEvent.IntervalUpdated) {

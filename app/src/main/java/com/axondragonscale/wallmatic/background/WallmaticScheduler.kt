@@ -36,7 +36,13 @@ class WallmaticScheduler @Inject constructor(
         }
 
         if (!config.isInit) {
-            this.logD("schedule skipped. isInit: ${config.isInit}"); return
+            this.logD("schedule skipped. isInit: ${config.isInit}")
+            return
+        }
+
+        if (!config.homeConfig.autoCycleEnabled && !config.lockConfig.autoCycleEnabled) {
+            this.logD("schedule skipped. Autocycle disabled")
+            return
         }
 
         val homeNextUpdate = config.homeConfig.nextUpdate
