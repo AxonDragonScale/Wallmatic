@@ -12,6 +12,7 @@ import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.homeConfig
 import com.axondragonscale.wallmatic.util.lockConfig
 import com.axondragonscale.wallmatic.util.logD
+import com.axondragonscale.wallmatic.util.nextUpdate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
@@ -40,8 +41,8 @@ class WallpaperUpdater @Inject constructor(
         }
 
         val now = System.currentTimeMillis()
-        val updateHomeWallpaper = config.homeConfig.run { lastUpdated + updateInterval } < now
-        val updateLockWallpaper = config.lockConfig.run { lastUpdated + updateInterval } < now
+        val updateHomeWallpaper = config.homeConfig.nextUpdate < now
+        val updateLockWallpaper = config.lockConfig.nextUpdate < now
 
         val target = when {
             updateHomeWallpaper && updateLockWallpaper -> TargetScreen.Both

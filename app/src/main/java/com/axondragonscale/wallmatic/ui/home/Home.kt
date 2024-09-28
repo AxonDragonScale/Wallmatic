@@ -26,7 +26,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.QueuePlayNext
 import androidx.compose.material.icons.outlined.RemoveFromQueue
 import androidx.compose.material3.Button
@@ -76,6 +75,7 @@ import com.axondragonscale.wallmatic.ui.util.countSummary
 import com.axondragonscale.wallmatic.ui.util.performLongPressHapticFeedback
 import com.axondragonscale.wallmatic.ui.util.performTickHapticFeedback
 import com.axondragonscale.wallmatic.ui.util.toDateTimeString
+import com.axondragonscale.wallmatic.util.nextUpdate
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -275,13 +275,19 @@ private fun HomeScreenCard(
         }
     )
 
-    AutoCycleIntervalCard(
-        modifier = Modifier.padding(top = 8.dp),
-        interval = uiState.config.homeConfig.updateInterval,
-        onIntervalUpdate = {
-            onEvent(HomeUiEvent.IntervalUpdated(it, TargetScreen.Home))
-        },
-    )
+    AnimatedVisibility(
+        visible = uiState.config.homeConfig.autoCycleEnabled,
+        enter = expandVertically(tween()) + fadeIn(tween(delayMillis = 300)),
+        exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
+    ) {
+        AutoCycleIntervalCard(
+            modifier = Modifier.padding(top = 8.dp),
+            interval = uiState.config.homeConfig.updateInterval,
+            onIntervalUpdate = {
+                onEvent(HomeUiEvent.IntervalUpdated(it, TargetScreen.Home))
+            },
+        )
+    }
 }
 
 @Composable
@@ -328,13 +334,19 @@ private fun LockScreenCard(
                 }
             )
 
-            AutoCycleIntervalCard(
-                modifier = Modifier.padding(top = 8.dp),
-                interval = uiState.config.lockConfig.updateInterval,
-                onIntervalUpdate = {
-                    onEvent(HomeUiEvent.IntervalUpdated(it, TargetScreen.Lock))
-                },
-            )
+            AnimatedVisibility(
+                visible = uiState.config.lockConfig.autoCycleEnabled,
+                enter = expandVertically(tween()) + fadeIn(tween(delayMillis = 300)),
+                exit = fadeOut() + shrinkVertically(tween(delayMillis = 300))
+            ) {
+                AutoCycleIntervalCard(
+                    modifier = Modifier.padding(top = 8.dp),
+                    interval = uiState.config.lockConfig.updateInterval,
+                    onIntervalUpdate = {
+                        onEvent(HomeUiEvent.IntervalUpdated(it, TargetScreen.Lock))
+                    },
+                )
+            }
         }
     }
 }
@@ -343,32 +355,30 @@ private fun LockScreenCard(
 private fun MirrorHomeScreenCard(
     modifier: Modifier = Modifier,
     mirrorHomeConfigForLock: Boolean,
-    onToggle: () -> Unit,
+    onToggle: (Boolean) -> Unit,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { onToggle() }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             modifier = Modifier.padding(start = 8.dp),
-            text = if (mirrorHomeConfigForLock) "Set different Album for Lock Screen"
-            else "Mirror Home Screen to Lock Screen",
+            text = "Mirror Home and Lock settings",
             style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Icon(
-            modifier = Modifier
-                .padding(12.dp)
-                .size(28.dp),
-            imageVector = if (mirrorHomeConfigForLock) Icons.Outlined.AddCircle else Icons.Outlined.Delete,
-            contentDescription = null
+        Switch(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            checked = mirrorHomeConfigForLock,
+            onCheckedChange = onToggle
         )
     }
 }
@@ -441,7 +451,6 @@ private fun WallpaperPreviewCard(
             .padding(8.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        // TODO: Navigate to Wallpaper on click
         WallpaperPreview(
             modifier = Modifier
                 .padding(start = 8.dp)
@@ -468,7 +477,10 @@ private fun WallpaperPreviewCard(
             WallpaperInfo(
                 icon = Icons.Outlined.QueuePlayNext,
                 title = "Next Wallpaper",
-                time = (wallpaperConfig.lastUpdated + wallpaperConfig.updateInterval).toDateTimeString()
+                time = if (wallpaperConfig.autoCycleEnabled)
+                    wallpaperConfig.nextUpdate.toDateTimeString()
+                else
+                    "Autocycle Disabled"
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -655,6 +667,7 @@ private fun Preview() {
                         homeConfig = wallpaperConfig {
                             albumId = 1
                             updateInterval = 15.minutes.inWholeMilliseconds
+                            autoCycleEnabled = false
                         }
                         lockConfig = wallpaperConfig {
                             albumId = 1

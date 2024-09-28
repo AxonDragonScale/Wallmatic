@@ -105,7 +105,11 @@ class HomeVM @Inject constructor(
 
     private suspend fun onMirrorHomeConfigForLockToggled() {
         appPrefsRepository.setConfig(
-            uiState.value.config.copy { mirrorHomeConfigForLock = !mirrorHomeConfigForLock }
+            uiState.value.config.copy {
+                // If mirroring was enabled set lockConfig to same as homoConfig
+                if (mirrorHomeConfigForLock) lockConfig = homeConfig
+                mirrorHomeConfigForLock = !mirrorHomeConfigForLock
+            }
         )
     }
 

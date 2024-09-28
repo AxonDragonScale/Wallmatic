@@ -7,6 +7,7 @@ import androidx.core.content.getSystemService
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.ui.util.toTimestampString
 import com.axondragonscale.wallmatic.util.logD
+import com.axondragonscale.wallmatic.util.nextUpdate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
@@ -38,8 +39,8 @@ class WallmaticScheduler @Inject constructor(
             this.logD("schedule skipped. isInit: ${config.isInit}"); return
         }
 
-        val homeNextUpdate = config.homeConfig.run { lastUpdated + updateInterval }
-        val lockNextUpdate = config.lockConfig.run { lastUpdated + updateInterval }
+        val homeNextUpdate = config.homeConfig.nextUpdate
+        val lockNextUpdate = config.lockConfig.nextUpdate
         var nextUpdate = minOf(homeNextUpdate, lockNextUpdate)
 
         val now = System.currentTimeMillis()
