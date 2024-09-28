@@ -13,10 +13,15 @@ import javax.inject.Inject
 import kotlin.system.measureTimeMillis
 
 /**
- * This receiver is intended to reschedule wallpaper changes when:
- * 1. The device is rebooted
- * 2. The time is changed
- * 3. The timezone is changed
+ * This receiver is responsible for rescheduling wallpaper changes and triggering immediate updates.
+ *
+ * It listens for the following system broadcasts:
+ * - **ACTION_BOOT_COMPLETED:** Reschedules wallpaper updates when the device reboots.
+ * - **ACTION_TIME_CHANGED:** Reschedules wallpaper updates when the device time is changed.
+ * - **ACTION_TIMEZONE_CHANGED:** Reschedules wallpaper updates when the device timezone is changed.
+ *
+ * It listens for the following custom broadcasts:
+ * - **ACTION_CHANGE_WALLPAPER:**  Triggers an immediate wallpaper update.
  */
 @AndroidEntryPoint
 class WallmaticReceiver : BroadcastReceiver() {
