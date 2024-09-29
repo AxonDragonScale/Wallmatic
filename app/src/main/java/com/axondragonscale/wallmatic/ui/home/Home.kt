@@ -24,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SyncLock
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.QueuePlayNext
@@ -66,6 +67,7 @@ import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.bottombar.Tab
 import com.axondragonscale.wallmatic.ui.common.SelectAlbumBottomSheet
+import com.axondragonscale.wallmatic.ui.common.SettingsCard
 import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.common.WallmaticCard
 import com.axondragonscale.wallmatic.ui.common.WallpaperPreview
@@ -357,30 +359,34 @@ private fun MirrorHomeScreenCard(
     mirrorHomeConfigForLock: Boolean,
     onToggle: (Boolean) -> Unit,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            modifier = Modifier.padding(start = 8.dp),
-            text = "Mirror Home and Lock settings",
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Switch(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            checked = mirrorHomeConfigForLock,
-            onCheckedChange = onToggle
-        )
-    }
+    SettingsCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Default.SyncLock,
+                contentDescription = null
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Mirror Home Screen",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "Use same settings as Home Screen",
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
+        trailingContent = {
+            Switch(
+                checked = mirrorHomeConfigForLock,
+                onCheckedChange = onToggle
+            )
+        }
+    )
 }
 
 @Composable
@@ -673,7 +679,7 @@ private fun Preview() {
                         homeConfig = wallpaperConfig {
                             albumId = 1
                             updateInterval = 15.minutes.inWholeMilliseconds
-                            autoCycleEnabled = true
+                            autoCycleEnabled = false
                         }
                         lockConfig = wallpaperConfig {
                             albumId = 1

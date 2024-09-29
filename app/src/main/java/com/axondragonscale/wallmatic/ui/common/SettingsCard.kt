@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
@@ -20,9 +21,10 @@ fun SettingsCard(
     headlineContent: @Composable () -> Unit,
     supportingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
+    shape: Shape = RoundedCornerShape(8.dp),
 ) {
     ListItem(
-        modifier = modifier.clip(RoundedCornerShape(8.dp)),
+        modifier = modifier.clip(shape),
         leadingContent = leadingContent,
         headlineContent = headlineContent,
         supportingContent = supportingContent,
