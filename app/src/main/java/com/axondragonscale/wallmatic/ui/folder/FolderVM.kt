@@ -3,6 +3,7 @@ package com.axondragonscale.wallmatic.ui.folder
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,12 +18,18 @@ import javax.inject.Inject
 class FolderVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: WallmaticRepository,
+    private val appPrefsRepository: AppPrefsRepository,
 ) : ViewModel() {
 
     private val folderId: Int = savedStateHandle.get<Int>("folderId")!!
     val uiState = MutableStateFlow(FolderUiState())
 
     init {
+        viewModelScope.launch(Dispatchers.IO) {
+            appPrefsRepository.gridSizeFlow.collect { gridSize ->
+                uiState.value = uiState.value.copy(gridSize = gridSize)
+            }
+        }
         viewModelScope.launch(Dispatchers.IO) {
             syncUiStateWithFolder()
         }

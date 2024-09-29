@@ -117,7 +117,7 @@ private fun Album(
 
             LazyVerticalStaggeredGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Fixed(2),
+                columns = StaggeredGridCells.Fixed(uiState.gridSize),
                 contentPadding = PaddingValues(8.dp),
                 verticalItemSpacing = 8.dp,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

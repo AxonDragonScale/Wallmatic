@@ -35,12 +35,14 @@ internal class SettingsVM @Inject constructor(
             combine(
                 appPrefsRepository.uiModeFlow,
                 appPrefsRepository.dynamicThemeFlow,
+                appPrefsRepository.gridSizeFlow,
                 appPrefsRepository.fastAutoCycleFlow,
-            ) { uiMode, dynamicTheme, fastAutoCycle ->
+            ) { uiMode, dynamicTheme, gridSize, fastAutoCycle ->
                 uiState.update {
                     it.copy(
                         uiMode = uiMode,
                         dynamicTheme = dynamicTheme,
+                        gridSize = gridSize,
                         fastAutoCycle = fastAutoCycle,
                     )
                 }
@@ -50,11 +52,14 @@ internal class SettingsVM @Inject constructor(
 
     fun onEvent(event: SettingsUiEvent) = viewModelScope.launch(Dispatchers.IO) {
         when (event) {
-            is SettingsUiEvent.UIModeUpdate ->
+            is SettingsUiEvent.UIModeUpdated ->
                 appPrefsRepository.setUiMode(event.uiMode)
 
-            is SettingsUiEvent.DynamicThemeToggle ->
+            is SettingsUiEvent.DynamicThemeToggled ->
                 appPrefsRepository.setDynamicTheme(event.dynamicTheme)
+
+            is SettingsUiEvent.GridSizedUpdated ->
+                appPrefsRepository.setGridSize(event.gridSize)
 
             is SettingsUiEvent.ClearData ->
                 devTools.clearData()

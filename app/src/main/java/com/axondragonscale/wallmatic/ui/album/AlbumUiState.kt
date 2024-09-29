@@ -7,5 +7,6 @@ import com.axondragonscale.wallmatic.model.FullAlbum
  */
 internal data class AlbumUiState(
     val loading: Boolean = true,
+    val gridSize: Int = 2,
     val album: FullAlbum? = null,
 )

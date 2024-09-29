@@ -67,6 +67,17 @@ class AppPrefsRepository @Inject constructor(
         }
     }
 
+    private val gridSizeKey = intPreferencesKey("gridSize")
+    val gridSizeFlow = context.appPrefs.data
+        .map { prefs -> prefs[gridSizeKey] ?: 2 }
+        .distinctUntilChanged()
+
+    suspend fun setGridSize(gridSize: Int) {
+        context.appPrefs.edit { prefs ->
+            prefs[gridSizeKey] = gridSize
+        }
+    }
+
     val configFlow = context.configStore.data
 
     suspend fun setConfig(config: Config) {
