@@ -49,7 +49,7 @@ fun Folder(
     val vm: FolderVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-    SystemBars(statusBarColor = MaterialTheme.colorScheme.primaryContainer,)
+    SystemBars(statusBarColor = MaterialTheme.colorScheme.primaryContainer)
     Folder(
         modifier = modifier.statusBarsPadding(),
         uiState = uiState,

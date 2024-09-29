@@ -55,7 +55,6 @@ fun WallmaticApp(modifier: Modifier = Modifier) {
         composable<Route.Folder> { backStackEntry ->
             val folder: Route.Folder = backStackEntry.toRoute()
             Folder(
-                modifier = Modifier.systemBarsPadding(),
                 navController = navController,
                 folderId = folder.folderId,
             )
