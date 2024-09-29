@@ -542,10 +542,11 @@ private fun AutoCycleIntervalCard(
     var job by remember { mutableStateOf<Job?>(null) }
 
     var hours by remember(interval) {
-        mutableFloatStateOf((interval.milliseconds.inWholeHours % 24).toFloat())
+        mutableFloatStateOf(interval.milliseconds.inWholeHours.coerceAtMost(24).toFloat())
     }
     var mins by remember(interval) {
-        mutableFloatStateOf((interval.milliseconds.inWholeMinutes % 60).toFloat())
+        val mins = if (hours.toInt() == 24) 0 else interval.milliseconds.inWholeMinutes % 60
+        mutableFloatStateOf(mins.toFloat())
     }
 
     val updateInterval = {
@@ -565,8 +566,9 @@ private fun AutoCycleIntervalCard(
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
             .padding(8.dp),
     ) {
-        val hoursText = if (hours.toInt() != 0) "${hours.toInt()} Hours, " else ""
+        val hoursText = if (hours.toInt() != 0) "${hours.toInt()} Hours" else ""
         val minsText = if (mins.toInt() != 0) "${mins.toInt()} Minutes" else ""
+        val connectorText = if (hoursText.isNotEmpty() && minsText.isNotEmpty()) ", " else ""
         Text(
             modifier = Modifier.padding(start = 8.dp),
             text = "Auto Cycle Interval",
@@ -583,7 +585,7 @@ private fun AutoCycleIntervalCard(
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(vertical = 8.dp),
-            text = "$hoursText$minsText",
+            text = "$hoursText$connectorText$minsText",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Center,
@@ -610,7 +612,11 @@ private fun AutoCycleIntervalCard(
             valueRange = 0f..60f,
             steps = 59,
             onValueChange = { newMins ->
-                mins = if (hours.toInt() == 0 && newMins < 15) 15f else newMins
+                mins = when {
+                    hours.toInt() == 0 && newMins < 15 -> 15f
+                    hours.toInt() == 24 -> 0f
+                    else -> newMins
+                }
                 view.performTickHapticFeedback()
                 updateInterval()
             },
@@ -667,7 +673,7 @@ private fun Preview() {
                         homeConfig = wallpaperConfig {
                             albumId = 1
                             updateInterval = 15.minutes.inWholeMilliseconds
-                            autoCycleEnabled = false
+                            autoCycleEnabled = true
                         }
                         lockConfig = wallpaperConfig {
                             albumId = 1

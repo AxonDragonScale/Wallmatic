@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 /**
@@ -131,10 +132,11 @@ class HomeVM @Inject constructor(
            if (appPrefsRepository.fastAutoCycleFlow.firstOrNull() == true)
                appPrefsRepository.setFastAutoCycle(false)
         }
+        val interval = event.interval.coerceAtMost(24.hours.inWholeMilliseconds)
         appPrefsRepository.setConfig(
             uiState.value.config
-                .homeConfig { if (event.target.isHome()) updateInterval = event.interval }
-                .lockConfig { if (event.target.isLock()) updateInterval = event.interval }
+                .homeConfig { if (event.target.isHome()) updateInterval = interval }
+                .lockConfig { if (event.target.isLock()) updateInterval = interval }
         )
         scheduler.scheduleNextUpdate()
     }
