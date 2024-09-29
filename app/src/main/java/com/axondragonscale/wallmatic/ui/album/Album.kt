@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.axondragonscale.wallmatic.ui.album
 
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -60,6 +63,8 @@ import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
+import com.axondragonscale.wallmatic.ui.common.LocalAnimatedContentScope
+import com.axondragonscale.wallmatic.ui.common.LocalSharedTransitionScope
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
@@ -86,8 +91,10 @@ fun Album(
             when (event) {
                 is AlbumUiEvent.NavigateToFolder ->
                     navController.navigate(Route.Folder(event.folderId))
+
                 is AlbumUiEvent.NavigateToWallpaper ->
                     navController.navigate(Route.Wallpaper(event.wallpaperId))
+
                 is AlbumUiEvent.DeleteAlbum ->
                     navController.popBackStack()
 
@@ -133,10 +140,16 @@ private fun Album(
                 }
 
                 items(uiState.album.wallpapers) {
-                    Wallpaper(
-                        uri = it.uri,
-                        onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) }
-                    )
+                    with(LocalSharedTransitionScope.current!!) {
+                        Wallpaper(
+                            modifier = Modifier.sharedBounds(
+                                sha = this.rememberSharedContentState("wallpaper_${it.id}"),
+                                animatedVisibilityScope = LocalAnimatedContentScope.current!!,
+                            ),
+                            uri = it.uri,
+                            onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) }
+                        )
+                    }
                 }
 
                 item(span = StaggeredGridItemSpan.FullLine) {
@@ -244,6 +257,7 @@ private fun TopBar(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun Folder(
     modifier: Modifier = Modifier,
@@ -271,14 +285,25 @@ private fun Folder(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(folder.wallpapers) {
-                // Height + Aspect Ratio = Fixed Size = Better Perf
-                Wallpaper(
-                    modifier = Modifier.aspectRatio(getAspectRatio()),
-                    uri = it.uri,
-                    onClick = { onWallpaperClick(it.id) },
-                    cornerRadius = 8.dp,
-                    contentScale = ContentScale.Crop,
-                )
+                with(LocalSharedTransitionScope.current!!) {
+                    // Height + Aspect Ratio = Fixed Size = Better Perf
+                    Wallpaper(
+                        modifier = Modifier
+                            .sharedBounds(
+                                sharedContentState = this.rememberSharedContentState("wallpaper_${it.id}"),
+                                animatedVisibilityScope = LocalAnimatedContentScope.current!!
+                            )
+//                            .sharedElement(
+//                                state = this.rememberSharedContentState("wallpaper_${it.id}"),
+//                                animatedVisibilityScope = LocalAnimatedContentScope.current!!
+//                            )
+                            .aspectRatio(getAspectRatio()),
+                        uri = it.uri,
+                        onClick = { onWallpaperClick(it.id) },
+                        cornerRadius = 8.dp,
+                        contentScale = ContentScale.Crop,
+                    )
+                }
             }
         }
     }

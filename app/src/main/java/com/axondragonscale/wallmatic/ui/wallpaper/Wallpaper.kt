@@ -1,6 +1,7 @@
 package com.axondragonscale.wallmatic.ui.wallpaper
 
 import android.content.res.Configuration
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.axondragonscale.wallmatic.ui.common.LocalAnimatedContentScope
+import com.axondragonscale.wallmatic.ui.common.LocalSharedTransitionScope
 import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 
@@ -32,18 +35,30 @@ fun Wallpaper(modifier: Modifier = Modifier) {
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun Wallpaper(
     modifier: Modifier = Modifier,
     uiState: WallpaperUiState,
     onEvent: (WallpaperUiEvent) -> Unit,
 ) {
-    AsyncImage(
-        modifier = modifier.fillMaxSize(),
-        model = uiState.wallpaper.uri,
-        contentDescription = null,
-        contentScale = ContentScale.Crop
-    )
+    with(LocalSharedTransitionScope.current!!) {
+        AsyncImage(
+            modifier = modifier
+                .sharedBounds(
+                    sharedContentState = this.rememberSharedContentState("wallpaper_${uiState.wallpaper.id}"),
+                    animatedVisibilityScope = LocalAnimatedContentScope.current!!
+                )
+//                .sharedElement(
+//                    state = this.rememberSharedContentState("wallpaper_${uiState.wallpaper.id}"),
+//                    animatedVisibilityScope = LocalAnimatedContentScope.current!!
+//                )
+                .fillMaxSize(),
+            model = uiState.wallpaper.uri,
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Preview(name = "Light Mode", showBackground = true)

@@ -2,6 +2,7 @@ package com.axondragonscale.wallmatic.ui.home
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -66,6 +67,8 @@ import com.axondragonscale.wallmatic.model.wallpaperConfig
 import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.bottombar.Tab
+import com.axondragonscale.wallmatic.ui.common.LocalAnimatedContentScope
+import com.axondragonscale.wallmatic.ui.common.LocalSharedTransitionScope
 import com.axondragonscale.wallmatic.ui.common.SelectAlbumBottomSheet
 import com.axondragonscale.wallmatic.ui.common.SettingsCard
 import com.axondragonscale.wallmatic.ui.common.TabHeader
@@ -442,6 +445,7 @@ private fun AlbumConfigCard(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun WallpaperPreviewCard(
     modifier: Modifier = Modifier,
@@ -457,15 +461,25 @@ private fun WallpaperPreviewCard(
             .padding(8.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        WallpaperPreview(
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .fillMaxWidth(0.4f)
-                .clickable(enabled = wallpaper?.uri != null) {
-                    wallpaper?.let { onWallpaperClick(it.id) }
-                },
-            uri = wallpaper?.uri
-        )
+        with(LocalSharedTransitionScope.current!!) {
+            WallpaperPreview(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+//                    .sharedElement(
+//                        state = this.rememberSharedContentState("wallpaper_${wallpaper?.id}"),
+//                        animatedVisibilityScope = LocalAnimatedContentScope.current!!
+//                    )
+                    .sharedBounds(
+                        sharedContentState = this.rememberSharedContentState("wallpaper_${wallpaper?.id}"),
+                        animatedVisibilityScope = LocalAnimatedContentScope.current!!
+                    )
+                    .fillMaxWidth(0.4f)
+                    .clickable(enabled = wallpaper?.uri != null) {
+                        wallpaper?.let { onWallpaperClick(it.id) }
+                    },
+                uri = wallpaper?.uri
+            )
+        }
 
         Column(
             modifier = Modifier

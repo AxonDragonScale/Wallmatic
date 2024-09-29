@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.axondragonscale.wallmatic.ui.folder
 
 import android.content.res.Configuration
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.axondragonscale.wallmatic.ui.Route
+import com.axondragonscale.wallmatic.ui.common.LocalAnimatedContentScope
+import com.axondragonscale.wallmatic.ui.common.LocalSharedTransitionScope
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
@@ -49,7 +54,7 @@ fun Folder(
     val vm: FolderVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-    SystemBars(statusBarColor = MaterialTheme.colorScheme.primaryContainer,)
+    SystemBars(statusBarColor = MaterialTheme.colorScheme.primaryContainer)
     Folder(
         modifier = modifier.statusBarsPadding(),
         uiState = uiState,
@@ -82,10 +87,21 @@ private fun Folder(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(uiState.folder.wallpapers) {
-                Wallpaper(
-                    uri = it.uri,
-                    onClick = { onEvent(FolderUiEvent.NavigateToWallpaper(it.id)) }
-                )
+                with(LocalSharedTransitionScope.current!!) {
+                    Wallpaper(
+                        modifier = Modifier
+//                            .sharedElement(
+//                                state = this.rememberSharedContentState("wallpaper_${it.id}") ,
+//                                animatedVisibilityScope = LocalAnimatedContentScope.current!!
+//                            )
+                            .sharedBounds(
+                                sharedContentState = this.rememberSharedContentState("wallpaper_${it.id}"),
+                                animatedVisibilityScope = LocalAnimatedContentScope.current!!
+                            ),
+                        uri = it.uri,
+                        onClick = { onEvent(FolderUiEvent.NavigateToWallpaper(it.id)) }
+                    )
+                }
             }
 
             item(span = StaggeredGridItemSpan.FullLine) {
