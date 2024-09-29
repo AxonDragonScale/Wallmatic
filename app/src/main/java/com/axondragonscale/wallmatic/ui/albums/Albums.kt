@@ -44,8 +44,9 @@ import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
 import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
-import com.axondragonscale.wallmatic.ui.util.collectWithLifecycle
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
+import com.axondragonscale.wallmatic.ui.util.collectWithLifecycle
+import com.axondragonscale.wallmatic.ui.util.countSummary
 
 /**
  * Created by Ronak Harkhani on 09/06/24
@@ -99,9 +100,7 @@ private fun Albums(
     uiState: AlbumsUiState,
     onEvent: (AlbumsUiEvent) -> Unit,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         AlbumList(
             albums = uiState.albums,
             onAlbumClick = { onEvent(AlbumsUiEvent.NavigateToAlbum(it.id)) }
@@ -153,35 +152,47 @@ private fun AlbumList(
         }
 
         items(albums) { album ->
-            Card(onClick = { onAlbumClick(album) }) {
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                    Text(
-                        text = album.name,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+            AlbumCard(
+                album = album,
+                onClick = { onAlbumClick(album) }
+            )
+        }
+    }
+}
 
-                    Text(
-                        text = "${album.folderIds.size} Folders, ${album.wallpaperIds.size} Wallpapers",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
+@Composable
+fun AlbumCard(
+    modifier: Modifier = Modifier,
+    album: Album,
+    onClick: () -> Unit,
+) {
+    Card(modifier = modifier, onClick = onClick) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Text(
+                text = album.name,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
 
-                album.coverUri?.let {
-                    Wallpaper(uri = it)
-                } ?: Box(
-                    modifier = Modifier
-                        .height(200.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Center
-                ) {
-                    Text(
-                        text = "No Wallpapers",
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
+            Text(
+                text = album.countSummary(),
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+
+        album.coverUri?.let {
+            Wallpaper(uri = it)
+        } ?: Box(
+            modifier = Modifier
+                .height(250.dp)
+                .fillMaxWidth(),
+            contentAlignment = Center
+        ) {
+            Text(
+                text = "404",
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }
