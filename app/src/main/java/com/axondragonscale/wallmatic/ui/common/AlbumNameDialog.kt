@@ -74,7 +74,7 @@ private fun AlbumNameForm(
 ) {
     Text(
         text = "Choose Name",
-        style = MaterialTheme.typography.headlineSmall
+        style = MaterialTheme.typography.headlineSmall,
     )
 
     val focusRequester = remember { FocusRequester() }
@@ -115,10 +115,10 @@ private fun AlbumNameForm(
             Text("Cancel")
         }
 
-        TextButton(onClick = {
-            if (albumName.isNotBlank())
-                onSave(albumName)
-        }) {
+        TextButton(
+            onClick = { onSave(albumName) },
+            enabled = albumName.isNotBlank(),
+        ) {
             Text("Save")
         }
     }
