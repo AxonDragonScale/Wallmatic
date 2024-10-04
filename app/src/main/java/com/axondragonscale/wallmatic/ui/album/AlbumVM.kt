@@ -58,7 +58,9 @@ internal class AlbumVM @Inject constructor(
         event: AlbumUiEvent.FolderSelected,
     ) = viewModelScope.launch(Dispatchers.IO) {
         val fullAlbum = uiState.value.album ?: return@launch
-        albumManager.forAlbum(fullAlbum).addFolder(event.uri)
+        albumManager.forAlbum(fullAlbum) {
+            addFolder(event.uri)
+        }
         syncUiStateWithAlbum()
     }
 
@@ -66,7 +68,9 @@ internal class AlbumVM @Inject constructor(
         event: AlbumUiEvent.ImagesSelected,
     ) = viewModelScope.launch(Dispatchers.IO) {
         val fullAlbum = uiState.value.album ?: return@launch
-        albumManager.forAlbum(fullAlbum).addWallpapers(event.uris)
+        albumManager.forAlbum(fullAlbum) {
+            addWallpapers(event.uris)
+        }
         syncUiStateWithAlbum()
     }
 

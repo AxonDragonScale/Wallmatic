@@ -17,6 +17,8 @@ class WallmaticRepository @Inject constructor(
     private val wallmaticDao: WallmaticDao,
 ) {
 
+    // MARK: Full Getters --------------------------------------------------------------------------
+
     suspend fun getAllFullAlbums(): List<FullAlbum> {
         val albums = wallmaticDao.getAlbums().firstOrNull() ?: emptyList()
         return albums.map {
@@ -30,8 +32,8 @@ class WallmaticRepository @Inject constructor(
         }
     }
 
-    suspend fun getFullAlbum(albumId: Int): FullAlbum {
-        val album = wallmaticDao.getAlbum(albumId)
+    suspend fun getFullAlbum(albumId: Int): FullAlbum? {
+        val album = wallmaticDao.getAlbum(albumId) ?: return null
         return FullAlbum(
             id = album.id,
             name = album.name,
@@ -55,8 +57,14 @@ class WallmaticRepository @Inject constructor(
             }
     }
 
-    suspend fun getFullFolder(folderId: Int): FullFolder {
-        return getFullFolders(listOf(folderId)).first()
+    suspend fun getFullFolder(folderId: Int): FullFolder? {
+        return getFullFolders(listOf(folderId)).firstOrNull()
+    }
+
+    // MARK: Base Getters --------------------------------------------------------------------------
+
+    fun getAlbums(): Flow<List<Album>> {
+        return wallmaticDao.getAlbums()
     }
 
     suspend fun getWallpapers(wallpaperIds: List<Int>): List<Wallpaper> {
@@ -67,21 +75,23 @@ class WallmaticRepository @Inject constructor(
         return wallmaticDao.getWallpaper(wallpaperId)
     }
 
-    fun getAlbums(): Flow<List<Album>> {
-        return wallmaticDao.getAlbums()
-    }
+    // MARK: Update --------------------------------------------------------------------------------
 
     suspend fun updateAlbum(albumId: Int, block: Album.() -> Unit) {
-        val album = wallmaticDao.getAlbum(albumId)
-        block(album)
-        wallmaticDao.upsertAlbum(album)
+        wallmaticDao.getAlbum(albumId)?.let { album ->
+            block(album)
+            wallmaticDao.upsertAlbum(album)
+        }
     }
 
     suspend fun updateFolder(folderId: Int, block: Folder.() -> Unit) {
-        val folder = wallmaticDao.getFolder(folderId)
-        block(folder)
-        wallmaticDao.upsertFolder(folder)
+        wallmaticDao.getFolder(folderId)?.let { folder ->
+            block(folder)
+            wallmaticDao.upsertFolder(folder)
+        }
     }
+
+    // MARK: Save / Create -------------------------------------------------------------------------
 
     suspend fun saveAlbum(album: Album): Int {
         val albumId = wallmaticDao.upsertAlbum(album)
@@ -103,7 +113,7 @@ class WallmaticRepository @Inject constructor(
         return wallpaperIds.first().toInt()
     }
 
-    // -------------------- Delete --------------------
+    // MARK: Delete --------------------------------------------------------------------------------
 
     suspend fun deleteAlbum(albumId: Int) {
         wallmaticDao.deleteAlbum(albumId)

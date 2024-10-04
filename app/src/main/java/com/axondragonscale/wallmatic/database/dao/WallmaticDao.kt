@@ -15,22 +15,24 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WallmaticDao {
 
-    // Get
+    // Get All
 
     @Query("SELECT * FROM album")
     fun getAlbums(): Flow<List<Album>>
 
-    @Query("SELECT * FROM album WHERE id = :id")
-    suspend fun getAlbum(id: Int): Album
-
     @Query("SELECT * FROM folder WHERE id in (:ids)")
     suspend fun getFolders(ids: List<Int>): List<Folder>
 
-    @Query("SELECT * FROM folder WHERE id = :id")
-    suspend fun getFolder(id: Int): Folder
-
     @Query("SELECT * FROM wallpaper WHERE id IN (:ids)")
     suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
+
+    // Get One
+
+    @Query("SELECT * FROM album WHERE id = :id")
+    suspend fun getAlbum(id: Int): Album?
+
+    @Query("SELECT * FROM folder WHERE id = :id")
+    suspend fun getFolder(id: Int): Folder?
 
     @Query("SELECT * FROM wallpaper WHERE id = :id")
     suspend fun getWallpaper(id: Int): Wallpaper?
@@ -59,7 +61,7 @@ interface WallmaticDao {
 
     @Transaction
     suspend fun deleteFullAlbum(id: Int) {
-        val album = getAlbum(id)
+        val album = getAlbum(id) ?: return
         deleteAlbum(album.id)
         deleteFolders(album.folderIds)
         deleteWallpapers(album.wallpaperIds)

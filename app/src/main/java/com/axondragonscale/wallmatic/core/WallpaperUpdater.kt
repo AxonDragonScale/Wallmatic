@@ -12,6 +12,7 @@ import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.homeConfig
 import com.axondragonscale.wallmatic.util.lockConfig
 import com.axondragonscale.wallmatic.util.logD
+import com.axondragonscale.wallmatic.util.logE
 import com.axondragonscale.wallmatic.util.nextUpdate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
@@ -71,22 +72,30 @@ class WallpaperUpdater @Inject constructor(
         this.logD("Wallpaper update start. target: $target")
 
         val config = appPrefsRepository.configFlow.firstOrNull() ?: run {
-            this.logD("Wallpaper update failed. Config is null")
+            this.logE("Wallpaper update failed. Config is null")
             return
         }
 
         if (!config.isInit) {
-            this.logD("Wallpaper update skipped. isInit: ${config.isInit}")
+            this.logE("Wallpaper update skipped. isInit: ${config.isInit}")
             return
         }
 
         val timestamp = System.currentTimeMillis()
         val homeAlbumId = config.homeConfig.albumId
         val lockAlbumId = config.lockConfig.albumId
+        val homeAlbum = repository.getFullAlbum(homeAlbumId)
+        val lockAlbum = if (config.mirrorHomeConfigForLock) homeAlbum
+                        else repository.getFullAlbum(lockAlbumId)
+
+        if (homeAlbum == null || lockAlbum == null) {
+            this.logE("Albums not found. home: $homeAlbumId, lock: $lockAlbumId")
+            return
+        }
 
         if (config.mirrorHomeConfigForLock) {
             this.logD("Updating wallpaper. homeAlbumId: $homeAlbumId, lockAlbumId: $lockAlbumId")
-            val wallpaper = repository.getFullAlbum(homeAlbumId).getAllWallpapers().random()
+            val wallpaper = homeAlbum.getAllWallpapers().random()
             setWallpaper(wallpaper, TargetScreen.Both)
             // Lock Config automatically updated since mirroring is enabled
             appPrefsRepository.setConfig(config.homeConfig {
@@ -96,7 +105,7 @@ class WallpaperUpdater @Inject constructor(
         } else {
             if (target.isHome()) {
                 this.logD("Updating home wallpaper. homeAlbumId: $homeAlbumId")
-                val wallpaper = repository.getFullAlbum(homeAlbumId).getAllWallpapers().random()
+                val wallpaper = homeAlbum.getAllWallpapers().random()
                 setWallpaper(wallpaper, TargetScreen.Home)
                 appPrefsRepository.setConfig(config.homeConfig {
                     currentWallpaperId = wallpaper.id
@@ -105,7 +114,7 @@ class WallpaperUpdater @Inject constructor(
             }
             if (target.isLock()) {
                 this.logD("Updating lock wallpaper. lockAlbumId: $lockAlbumId")
-                val wallpaper = repository.getFullAlbum(lockAlbumId).getAllWallpapers().random()
+                val wallpaper = lockAlbum.getAllWallpapers().random()
                 setWallpaper(wallpaper, TargetScreen.Lock)
                 appPrefsRepository.setConfig(config.lockConfig {
                     currentWallpaperId = wallpaper.id

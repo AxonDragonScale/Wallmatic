@@ -8,6 +8,7 @@ import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.getAllWallpapers
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.FileUtil
+import com.axondragonscale.wallmatic.util.logE
 import com.axondragonscale.wallmatic.util.takePersistableUriPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -22,11 +23,9 @@ class AlbumManager @Inject constructor(
     private val repository: WallmaticRepository,
 ) {
 
-    fun forAlbum(album: FullAlbum) = SpecificAlbumManager(album)
-    suspend fun forAlbum(album: FullAlbum, block: suspend SpecificAlbumManager.() -> Unit) = forAlbum(album).block()
-
-    suspend fun forAlbum(albumId: Int) = SpecificAlbumManager(repository.getFullAlbum(albumId))
-    suspend fun forAlbum(albumId: Int, block: suspend SpecificAlbumManager.() -> Unit) = forAlbum(albumId).block()
+    inline fun forAlbum(album: FullAlbum, block: SpecificAlbumManager.() -> Unit) {
+        SpecificAlbumManager(album).block()
+    }
 
     inner class SpecificAlbumManager(val album: FullAlbum) {
 
