@@ -21,14 +21,13 @@ class WallpaperVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val wallpaperId = savedStateHandle.get<Int>("wallpaperId")!!
-    val uiState = MutableStateFlow(WallpaperUiState(Wallpaper("")))
+    private val wallpaperId = savedStateHandle.get<Int>("wallpaperId")!!
+    val uiState = MutableStateFlow(WallpaperUiState())
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             uiState.update {
-                // TODO: Handle wallpaper null case
-                it.copy(wallpaper = repository.getWallpaper(wallpaperId)!!)
+                it.copy(wallpaper = repository.getWallpaper(wallpaperId))
             }
         }
     }
