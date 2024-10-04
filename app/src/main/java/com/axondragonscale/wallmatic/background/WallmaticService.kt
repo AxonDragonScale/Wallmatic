@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import com.axondragonscale.wallmatic.core.SyncManager
 import com.axondragonscale.wallmatic.core.WallpaperUpdater
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.util.logD
@@ -25,6 +26,7 @@ class WallmaticService : Service() {
 
     @Inject lateinit var wallpaperUpdater: WallpaperUpdater
     @Inject lateinit var appPrefsRepository: AppPrefsRepository
+    @Inject lateinit var syncManager: SyncManager
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -37,6 +39,7 @@ class WallmaticService : Service() {
         this.logD("onStartCommand")
 
         CoroutineScope(Dispatchers.IO).launch {
+            syncManager.syncAlbums()
             wallpaperUpdater.updateWallpaper()
 
             TAG.logD("Stopping service")

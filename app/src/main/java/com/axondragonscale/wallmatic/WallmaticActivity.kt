@@ -9,13 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import com.axondragonscale.wallmatic.core.SyncManager
 import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.ui.WallmaticApp
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
 import com.axondragonscale.wallmatic.util.logD
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -23,6 +27,7 @@ import javax.inject.Inject
 class WallmaticActivity : ComponentActivity() {
 
     @Inject lateinit var appPrefsRepository: AppPrefsRepository
+    @Inject lateinit var syncManager: SyncManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +56,13 @@ class WallmaticActivity : ComponentActivity() {
             ) {
                 WallmaticApp()
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch(Dispatchers.IO) {
+            syncManager.syncAlbums()
         }
     }
 

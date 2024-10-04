@@ -12,14 +12,24 @@ object FileUtil {
 
     private val supportedExtensions = listOf("jpg", "jpeg", "png", "heif", "webp")
 
-    fun getFolderName(context: Context, uri: Uri): String {
-        val folder = DocumentFile.fromTreeUri(context, uri)
-        return folder?.name ?: ""
+    fun isValidFile(context: Context, uri: Uri): Boolean {
+        val file = DocumentFile.fromSingleUri(context, uri) ?: return false
+        return file.exists()
+    }
+
+    fun isValidFolder(context: Context, uri: Uri): Boolean {
+        val folder = DocumentFile.fromTreeUri(context, uri) ?: return false
+        return folder.exists() && folder.isDirectory
     }
 
     fun getAllWallpapersInFolder(context: Context, uri: Uri): List<Uri> {
         val folder = DocumentFile.fromTreeUri(context, uri) ?: return emptyList()
         return folder.getAllWallpapers()
+    }
+
+    fun getFolderName(context: Context, uri: Uri): String {
+        val folder = DocumentFile.fromTreeUri(context, uri)
+        return folder?.name ?: ""
     }
 
     private fun DocumentFile.getAllWallpapers(): List<Uri> {

@@ -3,6 +3,7 @@ package com.axondragonscale.wallmatic.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axondragonscale.wallmatic.background.WallmaticScheduler
+import com.axondragonscale.wallmatic.core.SyncManager
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.util.DevTools
 import com.axondragonscale.wallmatic.util.collect
@@ -26,6 +27,7 @@ internal class SettingsVM @Inject constructor(
     private val appPrefsRepository: AppPrefsRepository,
     private val devTools: DevTools,
     private val scheduler: WallmaticScheduler,
+    private val syncManager: SyncManager,
 ) : ViewModel() {
 
     val uiState = MutableStateFlow(SettingsUiState())
@@ -75,6 +77,9 @@ internal class SettingsVM @Inject constructor(
                 )
                 scheduler.scheduleNextUpdate()
             }
+
+            is SettingsUiEvent.SyncAlbums ->
+                syncManager.syncAlbums()
         }
     }
 

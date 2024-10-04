@@ -7,6 +7,7 @@ import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.FullFolder
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 /**
@@ -15,6 +16,19 @@ import javax.inject.Inject
 class WallmaticRepository @Inject constructor(
     private val wallmaticDao: WallmaticDao,
 ) {
+
+    suspend fun getAllFullAlbums(): List<FullAlbum> {
+        val albums = wallmaticDao.getAlbums().firstOrNull() ?: emptyList()
+        return albums.map {
+            FullAlbum(
+                id = it.id,
+                name = it.name,
+                coverUri = it.coverUri,
+                folders = getFullFolders(it.folderIds),
+                wallpapers = getWallpapers(it.wallpaperIds),
+            )
+        }
+    }
 
     suspend fun getFullAlbum(albumId: Int): FullAlbum {
         val album = wallmaticDao.getAlbum(albumId)
@@ -84,8 +98,23 @@ class WallmaticRepository @Inject constructor(
         return wallpaperIds.map { it.toInt() }
     }
 
+    suspend fun saveWallpaper(wallpaper: Wallpaper): Int {
+        val wallpaperIds = wallmaticDao.upsertWallpapers(listOf(wallpaper))
+        return wallpaperIds.first().toInt()
+    }
+
+    // -------------------- Delete --------------------
+
     suspend fun deleteAlbum(albumId: Int) {
         wallmaticDao.deleteAlbum(albumId)
+    }
+
+    suspend fun deleteFolders(folderIds: List<Int>) {
+        wallmaticDao.deleteFolders(folderIds)
+    }
+
+    suspend fun deleteWallpapers(wallpaperIds: List<Int>) {
+        wallmaticDao.deleteWallpapers(wallpaperIds)
     }
 
 }

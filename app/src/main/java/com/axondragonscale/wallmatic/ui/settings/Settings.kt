@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.BrightnessAuto
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
@@ -95,7 +96,8 @@ private fun Settings(
             modifier = Modifier.padding(top = 16.dp),
             fastAutoCycle = uiState.fastAutoCycle,
             onClearData = { onEvent(SettingsUiEvent.ClearData) },
-            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) }
+            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) },
+            onSyncAlbums = { onEvent(SettingsUiEvent.SyncAlbums) }
         )
 
         Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
@@ -299,6 +301,7 @@ private fun DevToolsCard(
     fastAutoCycle: Boolean,
     onClearData: () -> Unit,
     onFastAutoCycleToggled: (Boolean) -> Unit,
+    onSyncAlbums: () -> Unit,
 ) = WallmaticCard(modifier = modifier, title = "Dev Tools") {
 
     ClearDataCard(
@@ -307,8 +310,13 @@ private fun DevToolsCard(
     )
 
     FastAutoCycleCard(
+        modifier = Modifier.padding(bottom = 8.dp),
         fastAutoCycle = fastAutoCycle,
         onToggled = onFastAutoCycleToggled,
+    )
+
+    SyncAlbums(
+        onClick = onSyncAlbums,
     )
 }
 
@@ -366,6 +374,35 @@ private fun FastAutoCycleCard(
             Switch(
                 checked = fastAutoCycle,
                 onCheckedChange = onToggled,
+            )
+        }
+    )
+}
+
+@Composable
+fun SyncAlbums(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    SettingsCard(
+        modifier = modifier.clickable { onClick() },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.Sync,
+                contentDescription = "Sync Albums",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Sync Albums",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "Sync Albums with Disk Storage",
+                style = MaterialTheme.typography.labelSmall,
             )
         }
     )

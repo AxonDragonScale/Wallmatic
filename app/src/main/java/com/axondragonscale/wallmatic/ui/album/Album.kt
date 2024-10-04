@@ -88,8 +88,10 @@ fun Album(
                     navController.navigate(Route.Folder(event.folderId))
                 is AlbumUiEvent.NavigateToWallpaper ->
                     navController.navigate(Route.Wallpaper(event.wallpaperId))
-                is AlbumUiEvent.DeleteAlbum ->
+                is AlbumUiEvent.DeleteAlbum -> {
+                    vm.onEvent(event)
                     navController.popBackStack()
+                }
 
                 else -> vm.onEvent(event)
             }

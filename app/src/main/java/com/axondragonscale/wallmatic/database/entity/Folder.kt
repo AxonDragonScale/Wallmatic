@@ -10,9 +10,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "folder")
 data class Folder(
     val name: String,
-    val coverUri: String?,
+    var coverUri: String?,
     val folderUri: String,
-    val wallpapers: List<Int>,
+    var wallpapers: List<Int>,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

@@ -11,4 +11,5 @@ internal sealed interface SettingsUiEvent {
     data class GridSizedUpdated(val gridSize: Int): SettingsUiEvent
     data object ClearData : SettingsUiEvent
     data class FastAutoCycleToggled(val fastAutoCycle: Boolean) : SettingsUiEvent
+    data object SyncAlbums : SettingsUiEvent
 }
