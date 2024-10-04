@@ -1,7 +1,9 @@
 package com.axondragonscale.wallmatic.ui.albums
 
 import android.content.res.Configuration
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -18,6 +20,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -27,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
@@ -42,6 +45,8 @@ import com.axondragonscale.wallmatic.database.entity.Album
 import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
+import com.axondragonscale.wallmatic.ui.common.ContextMenuDialog
+import com.axondragonscale.wallmatic.ui.common.ContextMenuItem
 import com.axondragonscale.wallmatic.ui.common.TabHeader
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
@@ -59,7 +64,9 @@ fun Albums(
 ) {
     val vm: AlbumsVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
-    var showCreateAlbumDialog by rememberSaveable { mutableStateOf(false) }
+    var showCreateAlbumDialog by remember { mutableStateOf(false) }
+    var renameAlbumDialog by remember { mutableStateOf<Album?>(null) }
+    var albumActionsDialog by remember { mutableStateOf<Album?>(null) }
 
     vm.uiEffect.collectWithLifecycle { uiEffect ->
         when (uiEffect) {
@@ -75,6 +82,9 @@ fun Albums(
             when (it) {
                 is AlbumsUiEvent.ShowCreateAlbumDialog ->
                     showCreateAlbumDialog = true
+
+                is AlbumsUiEvent.ShowAlbumActionsDialog ->
+                    albumActionsDialog = it.album
 
                 is AlbumsUiEvent.NavigateToAlbum ->
                     navController.navigate(route = Route.Album(it.albumId))
@@ -92,6 +102,25 @@ fun Albums(
             },
         )
     }
+
+    renameAlbumDialog?.let {
+        AlbumNameDialog(
+            currentAlbumName = it.name,
+            onDismiss = { renameAlbumDialog = null },
+            onConfirm = { albumName ->
+                vm.onEvent(AlbumsUiEvent.RenameAlbum(albumId = it.id, albumName = albumName))
+            },
+        )
+    }
+
+    albumActionsDialog?.let { album ->
+        AlbumActionsDialog(
+            album = album,
+            onRenameClick = { renameAlbumDialog = album },
+            onDeleteClick = { vm.onEvent(AlbumsUiEvent.DeleteAlbum(album.id)) },
+            onDismissRequest = { albumActionsDialog = null },
+        )
+    }
 }
 
 @Composable
@@ -103,7 +132,8 @@ private fun Albums(
     Box(modifier = modifier.fillMaxSize()) {
         AlbumList(
             albums = uiState.albums,
-            onAlbumClick = { onEvent(AlbumsUiEvent.NavigateToAlbum(it.id)) }
+            onAlbumClick = { onEvent(AlbumsUiEvent.NavigateToAlbum(it.id)) },
+            onAlbumLongClick = { onEvent(AlbumsUiEvent.ShowAlbumActionsDialog(it)) }
         )
 
         CreateAlbumButton(
@@ -136,6 +166,7 @@ private fun AlbumList(
     modifier: Modifier = Modifier,
     albums: List<Album>,
     onAlbumClick: (Album) -> Unit,
+    onAlbumLongClick: (Album) -> Unit,
 ) {
     LazyVerticalStaggeredGrid(
         modifier = modifier.padding(horizontal = 8.dp),
@@ -154,19 +185,31 @@ private fun AlbumList(
         items(albums) { album ->
             AlbumCard(
                 album = album,
-                onClick = { onAlbumClick(album) }
+                enabled = true,
+                onClick = { onAlbumClick(album) },
+                onLongClick = { onAlbumLongClick(album) },
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AlbumCard(
     modifier: Modifier = Modifier,
     album: Album,
-    onClick: () -> Unit,
+    enabled: Boolean = false,
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
 ) {
-    Card(modifier = modifier, onClick = onClick) {
+    Card(
+        modifier = modifier
+            .combinedClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
+    ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Text(
                 text = album.name,
@@ -195,6 +238,41 @@ fun AlbumCard(
             )
         }
     }
+}
+
+@Composable
+fun AlbumActionsDialog(
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onRenameClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    album: Album,
+) {
+    ContextMenuDialog(
+        modifier = modifier,
+        contextHighlight = {
+            AlbumCard(album = album)
+        },
+        contextMenuItems = listOf(
+            ContextMenuItem(
+                icon = Icons.Outlined.Edit,
+                text = "Rename",
+                action = {
+                    onDismissRequest()
+                    onRenameClick()
+                },
+            ),
+            ContextMenuItem(
+                icon = Icons.Outlined.Delete,
+                text = "Delete",
+                action = {
+                    onDismissRequest()
+                    onDeleteClick()
+                },
+            )
+        ),
+        onDismissRequest = onDismissRequest,
+    )
 }
 
 @Preview(name = "Light Mode", showBackground = true)

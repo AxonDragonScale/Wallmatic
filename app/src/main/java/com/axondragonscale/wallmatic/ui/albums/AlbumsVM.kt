@@ -37,8 +37,11 @@ class AlbumsVM @Inject constructor(
 
     fun onEvent(event: AlbumsUiEvent): Any = when (event) {
         is AlbumsUiEvent.CreateAlbum -> createAlbum(event)
+        is AlbumsUiEvent.RenameAlbum -> renameAlbum(event)
+        is AlbumsUiEvent.DeleteAlbum -> deleteAlbum(event)
 
         // Handled in the view
+        is AlbumsUiEvent.ShowAlbumActionsDialog -> Unit
         is AlbumsUiEvent.ShowCreateAlbumDialog -> Unit
         is AlbumsUiEvent.NavigateToAlbum -> Unit
     }
@@ -46,6 +49,16 @@ class AlbumsVM @Inject constructor(
     private fun createAlbum(event: AlbumsUiEvent.CreateAlbum) = viewModelScope.launch(Dispatchers.IO) {
         val albumId = repository.saveAlbum(Album(name = event.albumName))
         uiEffectChannel.send(AlbumsUiEffect.NavigateToAlbum(albumId))
+    }
+
+    private fun renameAlbum(event: AlbumsUiEvent.RenameAlbum) = viewModelScope.launch(Dispatchers.IO) {
+        repository.updateAlbum(event.albumId) {
+            name = event.albumName
+        }
+    }
+
+    private fun deleteAlbum(event: AlbumsUiEvent.DeleteAlbum) = viewModelScope.launch(Dispatchers.IO) {
+        repository.deleteAlbum(event.albumId)
     }
 
 }
