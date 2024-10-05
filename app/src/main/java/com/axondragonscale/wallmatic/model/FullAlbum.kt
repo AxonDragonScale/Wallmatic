@@ -16,4 +16,7 @@ data class FullAlbum(
 fun FullAlbum.getAllWallpapers() =
     wallpapers + folders.flatMap { it.wallpapers }
 
+fun FullAlbum.getWhitelistedWallpapers() =
+    this.getAllWallpapers().filter { !it.isBlacklisted }
+
 

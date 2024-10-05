@@ -6,7 +6,7 @@ import androidx.core.net.toUri
 import com.axondragonscale.wallmatic.background.WallmaticScheduler
 import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import com.axondragonscale.wallmatic.model.TargetScreen
-import com.axondragonscale.wallmatic.model.getAllWallpapers
+import com.axondragonscale.wallmatic.model.getWhitelistedWallpapers
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.homeConfig
@@ -95,7 +95,7 @@ class WallpaperUpdater @Inject constructor(
 
         if (config.mirrorHomeConfigForLock) {
             this.logD("Updating wallpaper. homeAlbumId: $homeAlbumId, lockAlbumId: $lockAlbumId")
-            val wallpaper = homeAlbum.getAllWallpapers().random()
+            val wallpaper = homeAlbum.getWhitelistedWallpapers().random()
             setWallpaper(wallpaper, TargetScreen.Both)
             // Lock Config automatically updated since mirroring is enabled
             appPrefsRepository.setConfig(config.homeConfig {
@@ -105,7 +105,7 @@ class WallpaperUpdater @Inject constructor(
         } else {
             if (target.isHome()) {
                 this.logD("Updating home wallpaper. homeAlbumId: $homeAlbumId")
-                val wallpaper = homeAlbum.getAllWallpapers().random()
+                val wallpaper = homeAlbum.getWhitelistedWallpapers().random()
                 setWallpaper(wallpaper, TargetScreen.Home)
                 appPrefsRepository.setConfig(config.homeConfig {
                     currentWallpaperId = wallpaper.id
@@ -114,7 +114,7 @@ class WallpaperUpdater @Inject constructor(
             }
             if (target.isLock()) {
                 this.logD("Updating lock wallpaper. lockAlbumId: $lockAlbumId")
-                val wallpaper = lockAlbum.getAllWallpapers().random()
+                val wallpaper = lockAlbum.getWhitelistedWallpapers().random()
                 setWallpaper(wallpaper, TargetScreen.Lock)
                 appPrefsRepository.setConfig(config.lockConfig {
                     currentWallpaperId = wallpaper.id
