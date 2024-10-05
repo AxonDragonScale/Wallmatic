@@ -16,7 +16,7 @@ import java.util.Locale
  * Locale.US is to capitalize the am/pm
  */
 fun Long.toDateTimeString(): String =
-    DateTimeFormatter.ofPattern("dd MMM - HH:mm a", Locale.US)
+    DateTimeFormatter.ofPattern("dd MMM - hh:mm a", Locale.US)
         .format(
             LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(this),
