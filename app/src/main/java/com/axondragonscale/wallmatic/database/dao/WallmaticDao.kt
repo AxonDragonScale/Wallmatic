@@ -23,7 +23,7 @@ interface WallmaticDao {
     @Query("SELECT * FROM folder WHERE id in (:ids)")
     suspend fun getFolders(ids: List<Int>): List<Folder>
 
-    @Query("SELECT * FROM wallpaper WHERE id IN (:ids)")
+    @Query("SELECT * FROM wallpaper WHERE id IN (:ids) ORDER BY isBlacklisted")
     suspend fun getWallpapers(ids: List<Int>): List<Wallpaper>
 
     // Get One
@@ -44,6 +44,9 @@ interface WallmaticDao {
 
     @Upsert
     suspend fun upsertFolder(folder: Folder): Long
+
+    @Upsert
+    suspend fun upsertWallpaper(wallpaper: Wallpaper): Long
 
     @Upsert
     suspend fun upsertWallpapers(wallpaper: List<Wallpaper>): LongArray

@@ -174,7 +174,7 @@ private fun Album(
                             onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) },
                             onLongClick = { onEvent(AlbumUiEvent.ShowWallpaperActions(it)) }
                         ),
-                        uri = it.uri,
+                        wallpaper = it,
                     )
                 }
 
@@ -326,7 +326,7 @@ private fun Folder(
                     modifier = Modifier
                         .aspectRatio(getAspectRatio())
                         .clickable(enabled) { onWallpaperClick(it.id) },
-                    uri = it.uri,
+                    wallpaper = it,
                     cornerRadius = 8.dp,
                     contentScale = ContentScale.Crop,
                 )
@@ -423,7 +423,7 @@ fun WallpaperActionsContextMenuDialog(
         modifier = modifier,
         context = {
             Wallpaper(
-                uri = wallpaper.uri,
+                wallpaper = wallpaper,
                 cornerRadius = 12.dp,
             )
         },
@@ -465,7 +465,7 @@ private fun Preview() {
                                     Wallpaper(""),
                                     Wallpaper(""),
                                     Wallpaper(""),
-                                )
+                                ),
                             )
                         ),
                         wallpapers = listOf(

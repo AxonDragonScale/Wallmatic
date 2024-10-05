@@ -52,7 +52,7 @@ class WallmaticRepository @Inject constructor(
                     name = folder.name,
                     coverUri = folder.coverUri,
                     folderUri = folder.folderUri,
-                    wallpapers = getWallpapers(folder.wallpapers)
+                    wallpapers = getWallpapers(folder.wallpapers),
                 )
             }
     }
@@ -88,6 +88,13 @@ class WallmaticRepository @Inject constructor(
         wallmaticDao.getFolder(folderId)?.let { folder ->
             block(folder)
             wallmaticDao.upsertFolder(folder)
+        }
+    }
+
+    suspend fun updateWallpaper(wallpaperId: Int, block: Wallpaper.() -> Unit) {
+        wallmaticDao.getWallpaper(wallpaperId)?.let { wallpaper ->
+            block(wallpaper)
+            wallmaticDao.upsertWallpaper(wallpaper)
         }
     }
 

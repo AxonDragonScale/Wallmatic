@@ -36,14 +36,37 @@ class FolderVM @Inject constructor(
     }
 
     fun onEvent(event: FolderUiEvent): Any = when (event) {
+        is FolderUiEvent.BlacklistWallpaper -> onBlacklistWallpaper(event)
+        is FolderUiEvent.WhitelistWallpaper -> onWhitelistWallpaper(event)
 
         // Handled by view
         is FolderUiEvent.NavigateToWallpaper -> Unit
+        is FolderUiEvent.ShowWallpaperActions -> Unit
     }
 
     private suspend fun syncUiStateWithFolder() {
         val folder = repository.getFullFolder(folderId)
         uiState.value = uiState.value.copy(folder = folder)
+    }
+
+    private fun onBlacklistWallpaper(
+        event: FolderUiEvent.BlacklistWallpaper,
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        repository.updateWallpaper(event.wallpaper.id) {
+            isBlacklisted = true
+        }
+        // TODO: Update Cover
+        syncUiStateWithFolder()
+    }
+
+    private fun onWhitelistWallpaper(
+        event: FolderUiEvent.WhitelistWallpaper,
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        repository.updateWallpaper(event.wallpaper.id) {
+            isBlacklisted = false
+        }
+        // TODO: Update Cover
+        syncUiStateWithFolder()
     }
 
 }

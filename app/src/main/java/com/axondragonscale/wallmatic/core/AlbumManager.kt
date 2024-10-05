@@ -8,7 +8,6 @@ import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.getAllWallpapers
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.FileUtil
-import com.axondragonscale.wallmatic.util.logE
 import com.axondragonscale.wallmatic.util.takePersistableUriPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

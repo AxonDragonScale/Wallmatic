@@ -1,7 +1,7 @@
 package com.axondragonscale.wallmatic.core
 
-import android.content.Context
 import android.app.WallpaperManager
+import android.content.Context
 import androidx.core.net.toUri
 import com.axondragonscale.wallmatic.background.WallmaticScheduler
 import com.axondragonscale.wallmatic.database.entity.Wallpaper

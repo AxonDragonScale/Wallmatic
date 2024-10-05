@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "wallpaper")
 data class Wallpaper(
     val uri: String,
+    var isBlacklisted: Boolean = false,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
