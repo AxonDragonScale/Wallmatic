@@ -12,8 +12,6 @@ sealed interface AlbumUiEvent {
     data class ImagesSelected(val uris: List<Uri>): AlbumUiEvent
     data class NavigateToFolder(val folderId: Int): AlbumUiEvent
     data class NavigateToWallpaper(val wallpaperId: Int): AlbumUiEvent
-    data class RenameAlbum(val albumName: String): AlbumUiEvent
-    data object DeleteAlbum : AlbumUiEvent
     data class ShowFolderActions(val folder: FullFolder): AlbumUiEvent
     data class ShowWallpaperActions(val wallpaper: Wallpaper): AlbumUiEvent
     data class DeleteFolder(val folderId: Int): AlbumUiEvent

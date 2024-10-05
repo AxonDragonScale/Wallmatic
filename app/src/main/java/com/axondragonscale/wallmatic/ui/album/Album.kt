@@ -67,6 +67,7 @@ import com.axondragonscale.wallmatic.ui.common.ContextMenuDialog
 import com.axondragonscale.wallmatic.ui.common.ContextMenuItem
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
+import com.axondragonscale.wallmatic.ui.common.TopBar
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
 import com.axondragonscale.wallmatic.ui.theme.SystemBars
 import com.axondragonscale.wallmatic.ui.theme.WallmaticTheme
@@ -98,10 +99,6 @@ fun Album(
                     navController.navigate(Route.Folder(event.folderId))
                 is AlbumUiEvent.NavigateToWallpaper ->
                     navController.navigate(Route.Wallpaper(event.wallpaperId))
-                is AlbumUiEvent.DeleteAlbum -> {
-                    vm.onEvent(event)
-                    navController.popBackStack()
-                }
                 is AlbumUiEvent.ShowFolderActions ->
                     folderActionsTarget = event.folder
                 is AlbumUiEvent.ShowWallpaperActions ->
@@ -144,9 +141,8 @@ private fun Album(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(
-                albumName = uiState.album.name,
-                onRename = { onEvent(AlbumUiEvent.RenameAlbum(it)) },
-                onDelete = { onEvent(AlbumUiEvent.DeleteAlbum) },
+                title = "Album",
+                subtitle = uiState.album.name,
             )
 
             LazyVerticalStaggeredGrid(
@@ -189,97 +185,6 @@ private fun Album(
             onFolderSelected = { onEvent(AlbumUiEvent.FolderSelected(it)) },
             onImagesSelected = { onEvent(AlbumUiEvent.ImagesSelected(it)) },
         )
-    }
-}
-
-@Composable
-private fun TopBar(
-    modifier: Modifier = Modifier,
-    albumName: String,
-    onRename: (String) -> Unit,
-    onDelete: () -> Unit,
-) {
-    var showRenameAlbumDialog by remember { mutableStateOf(false) }
-    if (showRenameAlbumDialog) {
-        AlbumNameDialog(
-            currentAlbumName = albumName,
-            onDismiss = { showRenameAlbumDialog = false },
-            onConfirm = { newAlbumName ->
-                onRename(newAlbumName)
-                showRenameAlbumDialog = false
-            }
-        )
-    }
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = "Album",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Text(
-                text = albumName,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Box(
-            modifier = Modifier.clip(CircleShape)
-        ) {
-            var isExpanded by remember { mutableStateOf(false) }
-            Icon(
-                modifier = Modifier
-                    .clickable { isExpanded = true }
-                    .padding(16.dp),
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-
-            MaterialTheme(
-                shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
-            ) {
-                DropdownMenu(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    expanded = isExpanded,
-                    onDismissRequest = { isExpanded = false },
-                    offset = DpOffset(x = -8.dp, y = 0.dp),
-                ) {
-                    DropdownMenuItem(
-                        modifier = Modifier.clip(RoundedCornerShape(8.dp)),
-                        onClick = {
-                            showRenameAlbumDialog = true
-                            isExpanded = false
-                        },
-                        text = { Text("Rename") },
-                    )
-
-                    DropdownMenuItem(
-                        modifier = Modifier.clip(RoundedCornerShape(8.dp)),
-                        onClick = {
-                            onDelete()
-                            isExpanded = false
-                        },
-                        text = { Text("Delete") },
-                    )
-                }
-            }
-        }
     }
 }
 
