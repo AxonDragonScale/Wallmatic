@@ -44,6 +44,13 @@ class WallmaticActivity : ComponentActivity() {
         }
         keepSplashScreen = false
 
+        // Sync albums in onStart creates a race condition when picking a folder or wallpaper.
+        // Album sync and adding items to DB will happen at the same time when picker closes
+        // and the app onStart is called.
+        lifecycleScope.launch(Dispatchers.IO) {
+            syncManager.syncAlbums()
+        }
+
         setContent {
             val uiMode by appPrefsRepository.uiModeFlow
                 .collectAsStateWithLifecycle(initialValue = initialUiMode)
@@ -56,13 +63,6 @@ class WallmaticActivity : ComponentActivity() {
             ) {
                 WallmaticApp()
             }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        lifecycleScope.launch(Dispatchers.IO) {
-            syncManager.syncAlbums()
         }
     }
 
