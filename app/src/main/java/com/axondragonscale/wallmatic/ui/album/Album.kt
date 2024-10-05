@@ -4,8 +4,10 @@ import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -29,10 +31,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -54,10 +58,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.axondragonscale.wallmatic.database.entity.Wallpaper
 import com.axondragonscale.wallmatic.model.FullAlbum
 import com.axondragonscale.wallmatic.model.FullFolder
 import com.axondragonscale.wallmatic.ui.Route
 import com.axondragonscale.wallmatic.ui.common.AlbumNameDialog
+import com.axondragonscale.wallmatic.ui.common.ContextMenuDialog
+import com.axondragonscale.wallmatic.ui.common.ContextMenuItem
 import com.axondragonscale.wallmatic.ui.common.FluidFabButton
 import com.axondragonscale.wallmatic.ui.common.FluidFabButtonProperties
 import com.axondragonscale.wallmatic.ui.common.Wallpaper
@@ -78,6 +85,9 @@ fun Album(
     val vm: AlbumVM = hiltViewModel()
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
+    var folderActionsTarget by remember { mutableStateOf<FullFolder?>(null) }
+    var wallpaperActionsTarget by remember { mutableStateOf<Wallpaper?>(null) }
+
     SystemBars(statusBarColor = MaterialTheme.colorScheme.primaryContainer)
     Album(
         modifier = modifier.statusBarsPadding(),
@@ -92,13 +102,35 @@ fun Album(
                     vm.onEvent(event)
                     navController.popBackStack()
                 }
+                is AlbumUiEvent.ShowFolderActions ->
+                    folderActionsTarget = event.folder
+                is AlbumUiEvent.ShowWallpaperActions ->
+                    wallpaperActionsTarget = event.wallpaper
 
                 else -> vm.onEvent(event)
             }
         },
     )
+
+    folderActionsTarget?.let {
+        FolderActionsContextMenuDialog(
+            folder = it,
+            onDelete = { vm.onEvent(AlbumUiEvent.DeleteFolder(it.id)) },
+            onDismiss = { folderActionsTarget = null },
+        )
+    }
+
+    wallpaperActionsTarget?.let {
+        WallpaperActionsContextMenuDialog(
+            wallpaper = it,
+            onDelete = { vm.onEvent(AlbumUiEvent.DeleteWallpaper(it.id)) },
+            onDismiss = { wallpaperActionsTarget = null },
+        )
+    }
+
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Album(
     modifier: Modifier = Modifier,
@@ -128,7 +160,9 @@ private fun Album(
                     item(span = StaggeredGridItemSpan.FullLine) {
                         Folder(
                             folder = folder,
+                            enabled = true,
                             onClick = { onEvent(AlbumUiEvent.NavigateToFolder(folder.id)) },
+                            onLongClick = { onEvent(AlbumUiEvent.ShowFolderActions(folder)) },
                             onWallpaperClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it)) }
                         )
                     }
@@ -136,8 +170,11 @@ private fun Album(
 
                 items(uiState.album.wallpapers) {
                     Wallpaper(
+                        modifier = Modifier.combinedClickable(
+                            onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) },
+                            onLongClick = { onEvent(AlbumUiEvent.ShowWallpaperActions(it)) }
+                        ),
                         uri = it.uri,
-                        onClick = { onEvent(AlbumUiEvent.NavigateToWallpaper(it.id)) }
                     )
                 }
 
@@ -246,14 +283,25 @@ private fun TopBar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Folder(
     modifier: Modifier = Modifier,
     folder: FullFolder,
-    onClick: () -> Unit,
-    onWallpaperClick: (wallpaperId: Int) -> Unit,
+    enabled: Boolean = false,
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
+    onWallpaperClick: (wallpaperId: Int) -> Unit = {},
 ) {
-    Card(modifier = modifier.clickable(onClick = onClick)) {
+    Card(
+        modifier = modifier
+            .clip(CardDefaults.shape)
+            .combinedClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
+    ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Text(
                 modifier = Modifier.padding(top = 8.dp),
@@ -275,9 +323,10 @@ private fun Folder(
             items(folder.wallpapers) {
                 // Height + Aspect Ratio = Fixed Size = Better Perf
                 Wallpaper(
-                    modifier = Modifier.aspectRatio(getAspectRatio()),
+                    modifier = Modifier
+                        .aspectRatio(getAspectRatio())
+                        .clickable(enabled) { onWallpaperClick(it.id) },
                     uri = it.uri,
-                    onClick = { onWallpaperClick(it.id) },
                     cornerRadius = 8.dp,
                     contentScale = ContentScale.Crop,
                 )
@@ -287,7 +336,7 @@ private fun Folder(
 }
 
 @Composable
-fun BoxScope.PickerButton(
+private fun BoxScope.PickerButton(
     modifier: Modifier = Modifier,
     onFolderSelected: (Uri) -> Unit,
     onImagesSelected: (List<Uri>) -> Unit,
@@ -336,6 +385,62 @@ fun BoxScope.PickerButton(
     )
 }
 
+@Composable
+private fun FolderActionsContextMenuDialog(
+    modifier: Modifier = Modifier,
+    folder: FullFolder,
+    onDelete: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ContextMenuDialog(
+        modifier = modifier,
+        context = {
+          Folder(folder = folder)
+        },
+        contextMenuItems = listOf(
+            ContextMenuItem(
+                icon = Icons.Default.Delete,
+                text = "Delete",
+                action = {
+                    onDelete()
+                    onDismiss()
+                },
+            )
+        ),
+        onDismiss = onDismiss,
+        maxWidthPercent = 0.8f,
+    )
+}
+
+@Composable
+fun WallpaperActionsContextMenuDialog(
+    modifier: Modifier = Modifier,
+    wallpaper: Wallpaper,
+    onDelete: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ContextMenuDialog(
+        modifier = modifier,
+        context = {
+            Wallpaper(
+                uri = wallpaper.uri,
+                cornerRadius = 12.dp,
+            )
+        },
+        contextMenuItems = listOf(
+            ContextMenuItem(
+                icon = Icons.Default.Delete,
+                text = "Delete",
+                action = {
+                    onDelete()
+                    onDismiss()
+                },
+            )
+        ),
+        onDismiss = onDismiss,
+    )
+}
+
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -356,17 +461,17 @@ private fun Preview() {
                                 coverUri = null,
                                 folderUri = "null",
                                 wallpapers = listOf(
-                                    com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
-                                    com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
-                                    com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
-                                    com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
+                                    Wallpaper(""),
+                                    Wallpaper(""),
+                                    Wallpaper(""),
+                                    Wallpaper(""),
                                 )
                             )
                         ),
                         wallpapers = listOf(
-                            com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
-                            com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
-                            com.axondragonscale.wallmatic.database.entity.Wallpaper(""),
+                            Wallpaper(""),
+                            Wallpaper(""),
+                            Wallpaper(""),
                         ),
                     )
                 )

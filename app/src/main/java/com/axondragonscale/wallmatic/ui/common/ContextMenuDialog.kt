@@ -51,12 +51,12 @@ data class ContextMenuItem(
 @Composable
 fun ContextMenuDialog(
     modifier: Modifier = Modifier,
-    contextHighlight: @Composable () -> Unit,
+    context: @Composable () -> Unit,
     contextMenuItems: List<ContextMenuItem>,
-    onDismissRequest: () -> Unit,
+    onDismiss: () -> Unit,
     maxWidthPercent: Float = 0.6f,
     maxHeightPercent: Float = 0.75f,
-) = Dialog(onDismissRequest) {
+) = Dialog(onDismiss) {
     val width = LocalConfiguration.current.screenWidthDp.dp
     val height = LocalConfiguration.current.screenHeightDp.dp
 
@@ -77,7 +77,7 @@ fun ContextMenuDialog(
                 maxHeight = (height * maxHeightPercent) - 150.dp
             )
         ) {
-            contextHighlight()
+            context()
         }
 
         ContextMenu(
@@ -145,7 +145,7 @@ private fun Preview() {
         ) {
             ContextMenuDialog(
                 modifier = Modifier,
-                contextHighlight = {
+                context = {
                     Card(modifier = Modifier.size(400.dp, 700.dp)) { }
                 },
                 contextMenuItems = listOf(
@@ -160,7 +160,7 @@ private fun Preview() {
                         action = { },
                     )
                 ),
-                onDismissRequest = { }
+                onDismiss = { }
             )
         }
     }

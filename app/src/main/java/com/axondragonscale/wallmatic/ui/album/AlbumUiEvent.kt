@@ -1,7 +1,8 @@
 package com.axondragonscale.wallmatic.ui.album
 
-import android.content.Context
 import android.net.Uri
+import com.axondragonscale.wallmatic.database.entity.Wallpaper
+import com.axondragonscale.wallmatic.model.FullFolder
 
 /**
  * Created by Ronak Harkhani on 23/06/24
@@ -13,4 +14,8 @@ sealed interface AlbumUiEvent {
     data class NavigateToWallpaper(val wallpaperId: Int): AlbumUiEvent
     data class RenameAlbum(val albumName: String): AlbumUiEvent
     data object DeleteAlbum : AlbumUiEvent
+    data class ShowFolderActions(val folder: FullFolder): AlbumUiEvent
+    data class ShowWallpaperActions(val wallpaper: Wallpaper): AlbumUiEvent
+    data class DeleteFolder(val folderId: Int): AlbumUiEvent
+    data class DeleteWallpaper(val wallpaperId: Int): AlbumUiEvent
 }

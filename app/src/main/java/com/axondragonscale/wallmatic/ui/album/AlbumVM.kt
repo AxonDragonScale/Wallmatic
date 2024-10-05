@@ -43,10 +43,14 @@ internal class AlbumVM @Inject constructor(
         is AlbumUiEvent.ImagesSelected -> onImagesSelected(event)
         is AlbumUiEvent.RenameAlbum -> onRenameAlbum(event)
         AlbumUiEvent.DeleteAlbum -> onDeleteAlbum()
+        is AlbumUiEvent.DeleteFolder -> onDeleteFolder(event)
+        is AlbumUiEvent.DeleteWallpaper -> onDeleteWallpaper(event)
 
         // Handled by View
         is AlbumUiEvent.NavigateToWallpaper -> Unit
         is AlbumUiEvent.NavigateToFolder -> Unit
+        is AlbumUiEvent.ShowFolderActions -> Unit
+        is AlbumUiEvent.ShowWallpaperActions -> Unit
     }
 
     private suspend fun syncUiStateWithAlbum() {
@@ -87,4 +91,17 @@ internal class AlbumVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteAlbum(albumId)
         }
+
+
+    private fun onDeleteFolder(
+        event: AlbumUiEvent.DeleteFolder,
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        repository.deleteFolders(listOf(event.folderId))
+    }
+
+    private fun onDeleteWallpaper(
+        event: AlbumUiEvent.DeleteWallpaper,
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        repository.deleteWallpapers(listOf(event.wallpaperId))
+    }
 }

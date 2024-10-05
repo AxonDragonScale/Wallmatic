@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -114,11 +116,11 @@ fun Albums(
     }
 
     albumActionsDialog?.let { album ->
-        AlbumActionsDialog(
+        AlbumActionsContextMenuDialog(
             album = album,
             onRenameClick = { renameAlbumDialog = album },
             onDeleteClick = { vm.onEvent(AlbumsUiEvent.DeleteAlbum(album.id)) },
-            onDismissRequest = { albumActionsDialog = null },
+            onDismiss = { albumActionsDialog = null },
         )
     }
 }
@@ -204,6 +206,7 @@ fun AlbumCard(
 ) {
     Card(
         modifier = modifier
+            .clip(CardDefaults.shape)
             .combinedClickable(
                 enabled = enabled,
                 onClick = onClick,
@@ -225,7 +228,10 @@ fun AlbumCard(
         }
 
         album.coverUri?.let {
-            Wallpaper(uri = it)
+            Wallpaper(
+                uri = it,
+                cornerRadius = 12.dp,
+            )
         } ?: Box(
             modifier = Modifier
                 .height(250.dp)
@@ -241,16 +247,16 @@ fun AlbumCard(
 }
 
 @Composable
-fun AlbumActionsDialog(
+fun AlbumActionsContextMenuDialog(
     modifier: Modifier = Modifier,
-    onDismissRequest: () -> Unit,
+    onDismiss: () -> Unit,
     onRenameClick: () -> Unit,
     onDeleteClick: () -> Unit,
     album: Album,
 ) {
     ContextMenuDialog(
         modifier = modifier,
-        contextHighlight = {
+        context = {
             AlbumCard(album = album)
         },
         contextMenuItems = listOf(
@@ -258,7 +264,7 @@ fun AlbumActionsDialog(
                 icon = Icons.Outlined.Edit,
                 text = "Rename",
                 action = {
-                    onDismissRequest()
+                    onDismiss()
                     onRenameClick()
                 },
             ),
@@ -266,12 +272,12 @@ fun AlbumActionsDialog(
                 icon = Icons.Outlined.Delete,
                 text = "Delete",
                 action = {
-                    onDismissRequest()
+                    onDismiss()
                     onDeleteClick()
                 },
             )
         ),
-        onDismissRequest = onDismissRequest,
+        onDismiss = onDismiss,
     )
 }
 
