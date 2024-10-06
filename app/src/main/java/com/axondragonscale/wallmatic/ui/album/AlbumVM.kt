@@ -56,35 +56,40 @@ internal class AlbumVM @Inject constructor(
         uiState.update { it.copy(album = album) }
     }
 
+    private inline fun runAndSyncState(
+        crossinline block: suspend () -> Unit,
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        block()
+        syncUiStateWithAlbum()
+    }
+
     private fun onFolderSelected(
         event: AlbumUiEvent.FolderSelected,
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        val fullAlbum = uiState.value.album ?: return@launch
+    ) = runAndSyncState {
+        val fullAlbum = uiState.value.album ?: return@runAndSyncState
         albumManager.forAlbum(fullAlbum) {
             addFolder(event.uri)
         }
-        syncUiStateWithAlbum()
     }
 
     private fun onImagesSelected(
         event: AlbumUiEvent.ImagesSelected,
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        val fullAlbum = uiState.value.album ?: return@launch
+    ) = runAndSyncState {
+        val fullAlbum = uiState.value.album ?: return@runAndSyncState
         albumManager.forAlbum(fullAlbum) {
             addWallpapers(event.uris)
         }
-        syncUiStateWithAlbum()
     }
 
     private fun onDeleteFolder(
         event: AlbumUiEvent.DeleteFolder,
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = runAndSyncState {
         repository.deleteFolders(listOf(event.folderId))
     }
 
     private fun onDeleteWallpaper(
         event: AlbumUiEvent.DeleteWallpaper,
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = runAndSyncState {
         repository.deleteWallpapers(listOf(event.wallpaperId))
     }
 }

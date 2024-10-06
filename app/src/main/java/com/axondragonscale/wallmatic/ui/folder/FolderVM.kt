@@ -49,24 +49,29 @@ class FolderVM @Inject constructor(
         uiState.value = uiState.value.copy(folder = folder)
     }
 
+    private inline fun runAndSyncState(
+        crossinline block: suspend () -> Unit
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        block()
+        syncUiStateWithFolder()
+    }
+
     private fun onBlacklistWallpaper(
         event: FolderUiEvent.BlacklistWallpaper,
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = runAndSyncState {
         repository.updateWallpaper(event.wallpaper.id) {
             isBlacklisted = true
         }
         // TODO: Update Cover
-        syncUiStateWithFolder()
     }
 
     private fun onWhitelistWallpaper(
         event: FolderUiEvent.WhitelistWallpaper,
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = runAndSyncState {
         repository.updateWallpaper(event.wallpaper.id) {
             isBlacklisted = false
         }
         // TODO: Update Cover
-        syncUiStateWithFolder()
     }
 
 }
