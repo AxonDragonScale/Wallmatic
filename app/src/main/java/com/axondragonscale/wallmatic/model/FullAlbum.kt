@@ -13,6 +13,9 @@ data class FullAlbum(
     val wallpapers: List<Wallpaper>,
 )
 
+fun FullAlbum.hasWallpapers() =
+    wallpapers.isNotEmpty() || folders.any { it.wallpapers.isNotEmpty() }
+
 fun FullAlbum.getAllWallpapers() =
     wallpapers + folders.flatMap { it.wallpapers }
 

@@ -69,71 +69,74 @@ private fun SelectAlbum(
     albums: List<Album>,
     selectedAlbumId: Int,
     onSelectAlbum: (Album) -> Unit,
-) = LazyColumn(modifier = modifier) {
-    item {
-        if (albums.isNotEmpty() && albums.any { it.hasWallpapers() })
+) {
+    if (albums.isEmpty() || !albums.any { it.hasWallpapers() })
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                text = "Select Album",
-                style = MaterialTheme.typography.titleLarge,
+                text = "Whoops!",
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.SemiBold,
             )
-        else
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+            Text(
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
+                text = "Looks like you don't have any Albums with wallpapers yet!",
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+            )
+        }
+    else
+        LazyColumn(modifier = modifier) {
+            item {
                 Text(
-                    text = "Whoops!",
-                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    text = "Select Album",
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Text(
-                    modifier = Modifier.padding(top = 16.dp),
-                    text = "Looks like you don't have any Albums with wallpapers yet!",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
+
+            }
+
+            items(albums) {
+                ListItem(
+                    modifier = Modifier.clickable { onSelectAlbum(it) },
+                    leadingContent = {
+                        WallpaperThumbnail(uri = it.coverUri)
+                    },
+                    headlineContent = {
+                        Text(
+                            text = it.name,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    supportingContent = {
+                        Text(
+                            text = it.countSummary(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    trailingContent = {
+                        RadioButton(
+                            selected = it.id == selectedAlbumId,
+                            onClick = { onSelectAlbum(it) }
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
             }
-    }
 
-    items(albums) {
-        ListItem(
-            modifier = Modifier.clickable { onSelectAlbum(it) },
-            leadingContent = {
-                WallpaperThumbnail(uri = it.coverUri)
-            },
-            headlineContent = {
-                Text(
-                    text = it.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            supportingContent = {
-                Text(
-                    text = it.countSummary(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            trailingContent = {
-                RadioButton(
-                    selected = it.id == selectedAlbumId,
-                    onClick = { onSelectAlbum(it) }
-                )
-            },
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-        )
-    }
-
-    item {
-        Spacer(modifier = Modifier.height(64.dp))
-        Spacer(modifier = Modifier.navigationBarsPadding())
-    }
+            item {
+                Spacer(modifier = Modifier.height(64.dp))
+                Spacer(modifier = Modifier.navigationBarsPadding())
+            }
+        }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

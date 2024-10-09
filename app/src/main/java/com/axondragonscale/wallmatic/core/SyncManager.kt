@@ -9,6 +9,7 @@ import com.axondragonscale.wallmatic.model.TargetScreen
 import com.axondragonscale.wallmatic.model.WallpaperConfig
 import com.axondragonscale.wallmatic.model.copy
 import com.axondragonscale.wallmatic.model.getAllWallpapers
+import com.axondragonscale.wallmatic.model.hasWallpapers
 import com.axondragonscale.wallmatic.repository.AppPrefsRepository
 import com.axondragonscale.wallmatic.repository.WallmaticRepository
 import com.axondragonscale.wallmatic.util.FileUtil
@@ -123,7 +124,7 @@ class SyncManager @Inject constructor(
         if (!config.isInit) return
         val refreshConfig: suspend (WallpaperConfig, TargetScreen) -> Unit = { targetConfig, target ->
             val album = repository.getFullAlbum(targetConfig.albumId)
-            if (album == null)
+            if (album == null || !album.hasWallpapers())
                 appPrefsRepository.setConfig(config.copy { isInit = false })
             else if (targetConfig.currentWallpaperId !in album.getAllWallpapers().map { it.id })
                 wallpaperUpdater.updateWallpaper(target)
