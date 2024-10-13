@@ -1,8 +1,10 @@
 package com.axondragonscale.wallmatic.ui.settings
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,14 +13,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Brightness6
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.BrightnessAuto
@@ -36,11 +44,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.axondragonscale.wallmatic.BuildConfig
+import com.axondragonscale.wallmatic.R
 import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
 import com.axondragonscale.wallmatic.ui.common.SettingsCard
@@ -69,10 +82,12 @@ private fun Settings(
     uiState: SettingsUiState,
     onEvent: (SettingsUiEvent) -> Unit,
 ) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp)
+            .verticalScroll(scrollState)
     ) {
         TabHeader(
             modifier = Modifier.padding(start = 8.dp, top = 48.dp, bottom = 16.dp),
@@ -92,12 +107,16 @@ private fun Settings(
             onGridSizeChanged = { onEvent(SettingsUiEvent.GridSizedUpdated(it)) }
         )
 
-        DevToolsCard(
-            modifier = Modifier.padding(top = 16.dp),
-            fastAutoCycle = uiState.fastAutoCycle,
-            onClearData = { onEvent(SettingsUiEvent.ClearData) },
-            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) },
-            onSyncAlbums = { onEvent(SettingsUiEvent.SyncAlbums) }
+//        DevToolsCard(
+//            modifier = Modifier.padding(top = 16.dp),
+//            fastAutoCycle = uiState.fastAutoCycle,
+//            onClearData = { onEvent(SettingsUiEvent.ClearData) },
+//            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) },
+//            onSyncAlbums = { onEvent(SettingsUiEvent.SyncAlbums) }
+//        )
+
+        AboutCard(
+            modifier = Modifier.padding(vertical = 16.dp),
         )
 
         Spacer(modifier = Modifier.height(BOTTOM_BAR_HEIGHT))
@@ -282,7 +301,7 @@ private fun GridSizeCard(
                                 text = size.toString(),
                                 fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
                                 color = if (isActive) MaterialTheme.colorScheme.primary
-                                        else LocalContentColor.current
+                                else LocalContentColor.current
                             )
                         },
                         icon = { /* Don't show tick */ },
@@ -380,7 +399,7 @@ private fun FastAutoCycleCard(
 }
 
 @Composable
-fun SyncAlbums(
+private fun SyncAlbums(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -405,6 +424,105 @@ fun SyncAlbums(
                 style = MaterialTheme.typography.labelSmall,
             )
         }
+    )
+}
+
+@Composable
+private fun AboutCard(
+    modifier: Modifier = Modifier,
+) = WallmaticCard(modifier = modifier, title = "About") {
+    val uriHandler = LocalUriHandler.current
+
+    SettingsCard(
+        modifier = Modifier.padding(bottom = 8.dp),
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.Android,
+                contentDescription = "Android",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Wallmatic",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "Version ${BuildConfig.VERSION_NAME}",
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+    )
+
+    SettingsCard(
+        modifier = Modifier.padding(bottom = 8.dp),
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.Person,
+                contentDescription = "Author",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Developer",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "RONAK HARKHANI",
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+    )
+
+    SettingsCard(
+        modifier = Modifier
+            .padding(bottom = 8.dp)
+            .clickable { uriHandler.openUri("https://github.com/AxonDragonScale") },
+        leadingContent = {
+            Image(
+                modifier = Modifier.size(24.dp),
+                painter = painterResource(R.drawable.ic_github),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Github",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "AxonDragonScale",
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+    )
+
+    SettingsCard(
+        modifier = Modifier.clickable {
+            uriHandler.openUri("https://github.com/AxonDragonScale/Wallmatic")
+        },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                contentDescription = "Open Source Code",
+            )
+        },
+        headlineContent = {
+            Text(
+                text = "Source Code",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
     )
 }
 
