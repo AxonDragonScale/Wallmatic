@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axondragonscale.wallmatic.BuildConfig
+import com.axondragonscale.wallmatic.Link
 import com.axondragonscale.wallmatic.R
 import com.axondragonscale.wallmatic.model.UIMode
 import com.axondragonscale.wallmatic.ui.bottombar.BOTTOM_BAR_HEIGHT
@@ -107,13 +108,13 @@ private fun Settings(
             onGridSizeChanged = { onEvent(SettingsUiEvent.GridSizedUpdated(it)) }
         )
 
-//        DevToolsCard(
-//            modifier = Modifier.padding(top = 16.dp),
-//            fastAutoCycle = uiState.fastAutoCycle,
-//            onClearData = { onEvent(SettingsUiEvent.ClearData) },
-//            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) },
-//            onSyncAlbums = { onEvent(SettingsUiEvent.SyncAlbums) }
-//        )
+        DevToolsCard(
+            modifier = Modifier.padding(top = 16.dp),
+            fastAutoCycle = uiState.fastAutoCycle,
+            onClearData = { onEvent(SettingsUiEvent.ClearData) },
+            onFastAutoCycleToggled = { onEvent(SettingsUiEvent.FastAutoCycleToggled(it)) },
+            onSyncAlbums = { onEvent(SettingsUiEvent.SyncAlbums) }
+        )
 
         AboutCard(
             modifier = Modifier.padding(vertical = 16.dp),
@@ -345,7 +346,8 @@ private fun ClearDataCard(
     onClick: () -> Unit,
 ) {
     SettingsCard(
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier,
+        onClick = onClick,
         leadingContent = {
             Icon(
                 imageVector = Icons.Filled.DeleteForever,
@@ -404,7 +406,8 @@ private fun SyncAlbums(
     onClick: () -> Unit,
 ) {
     SettingsCard(
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier,
+        onClick = onClick,
         leadingContent = {
             Icon(
                 imageVector = Icons.Filled.Sync,
@@ -480,9 +483,8 @@ private fun AboutCard(
     )
 
     SettingsCard(
-        modifier = Modifier
-            .padding(bottom = 8.dp)
-            .clickable { uriHandler.openUri("https://github.com/AxonDragonScale") },
+        modifier = Modifier.padding(bottom = 8.dp),
+        onClick = { uriHandler.openUri(Link.AXON_DRAGON_SCALE) },
         leadingContent = {
             Image(
                 modifier = Modifier.size(24.dp),
@@ -507,9 +509,8 @@ private fun AboutCard(
     )
 
     SettingsCard(
-        modifier = Modifier.clickable {
-            uriHandler.openUri("https://github.com/AxonDragonScale/Wallmatic")
-        },
+        modifier = Modifier,
+        onClick = { uriHandler.openUri(Link.WALLMATIC) },
         leadingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
